@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Coaching Sheet — Coach Notes</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff; --bg2: #f7f7f5; --bg3: #f0efe9;
+  --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+  --text: #1a1a1a; --text2: #5a5a5a; --text3: #999;
+  --green-bg: #eaf3de; --green-text: #27500a; --green-border: #3b6d11;
+  --yellow-bg: #faeeda; --yellow-text: #633806; --yellow-border: #854f0b;
+  --red-bg: #fcebeb; --red-text: #791f1f; --red-border: #a32d2d;
+  --radius: 10px; --radius-sm: 6px; --coach: #3b6d11;
+}
+body { background: var(--bg3); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; color: var(--text); line-height: 1.5; min-height: 100vh; }
+.page { max-width: 700px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+.top-bar { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.logo { font-size: 15px; font-weight: 600; } .logo span { color: var(--text2); font-weight: 400; }
+.badge { background: var(--green-bg); color: var(--green-text); border: 0.5px solid var(--green-border); border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 500; }
+.section { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+.sec-title { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 1rem; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coach); flex-shrink: 0; }
+.g2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+.f { display: flex; flex-direction: column; gap: 4px; }
+.f label { font-size: 12px; color: var(--text2); }
+input[type=text],textarea { width:100%; padding:8px 10px; border:0.5px solid var(--border2); border-radius:var(--radius-sm); font-size:14px; font-family:inherit; color:var(--text); background:var(--bg); outline:none; transition:border-color .15s; }
+input:focus,textarea:focus { border-color:var(--coach); }
+textarea { resize:vertical; min-height:70px; }
+.div { height:0.5px; background:var(--border); margin:1rem 0; }
+.ri { display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; }
+.ri input { width:14px; height:14px; cursor:pointer; accent-color:var(--coach); }
+.yn { display:flex; gap:16px; }
+.status-wrap { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1rem; }
+.sp { display:flex; align-items:center; gap:6px; border:0.5px solid var(--border2); border-radius:999px; padding:7px 16px; font-size:13px; cursor:pointer; color:var(--text2); }
+.sp:has(input:checked).sg { background:var(--green-bg); border-color:var(--green-border); color:var(--green-text); font-weight:500; }
+.sp:has(input:checked).sy { background:var(--yellow-bg); border-color:var(--yellow-border); color:var(--yellow-text); font-weight:500; }
+.sp:has(input:checked).sr { background:var(--red-bg); border-color:var(--red-border); color:var(--red-text); font-weight:500; }
+.sp input { display:none; }
+.btn-row { display:flex; justify-content:flex-end; margin-top:1.5rem; }
+.btn-p { background:var(--text); color:#fff; border:none; border-radius:var(--radius-sm); padding:11px 28px; font-size:14px; font-weight:500; cursor:pointer; }
+.btn-p:hover { opacity:.85; } .btn-p:disabled { opacity:.45; cursor:not-allowed; }
+.toast { border-radius:var(--radius-sm); padding:11px 15px; font-size:13px; margin-top:1rem; display:none; }
+.toast.ok { background:var(--green-bg); color:var(--green-text); border:0.5px solid var(--green-border); }
+.toast.err { background:var(--red-bg); color:var(--red-text); border:0.5px solid var(--red-border); }
+.confirm { text-align:center; padding:3.5rem 1rem; display:none; }
+.confirm.on { display:block; }
+.confirm-icon { width:64px; height:64px; background:var(--green-bg); color:var(--green-text); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; font-size:28px; }
+.confirm-title { font-size:22px; font-weight:600; margin-bottom:.6rem; }
+.confirm-sub { font-size:14px; color:var(--text2); line-height:1.8; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top-bar">
+    <div class="logo">Tom Gonzalez Group <span>/ Weekly Coaching Sheet</span></div>
+    <div class="badge">Coach Section</div>
+  </div>
+
+  <div id="form-view">
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Session info</div>
+      <div class="g2">
+        <div class="f"><label>Agent name</label><input type="text" id="agentName" placeholder="Full name"></div>
+        <div class="f"><label>Week of</label><input type="text" id="weekOf" placeholder="e.g. May 11, 2026"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Zillow coach notes</div>
+      <div class="f"><label>Observations on Zillow performance</label><textarea id="zNotes" placeholder="Notes on calls, conversion, follow-up..."></textarea></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Coach notes <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px;text-transform:none;">required</span></div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Overall agent status</div>
+      <div class="status-wrap">
+        <label class="sp sg"><input type="radio" name="status" value="Green - On Track"> &#9679; Green — on track</label>
+        <label class="sp sy"><input type="radio" name="status" value="Yellow - Needs Attention"> &#9679; Yellow — needs attention</label>
+        <label class="sp sr"><input type="radio" name="status" value="Red - At Risk"> &#9679; Red — at risk</label>
+      </div>
+      <div class="f" style="margin-bottom:1rem;"><label>Key observations</label><textarea id="keyObs" placeholder="Notes for this session..."></textarea></div>
+      <div class="div"></div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="font-size:13px;color:var(--text2);">Leadership follow-up needed?</span>
+        <div class="yn">
+          <label class="ri"><input type="radio" name="followup" value="No" onchange="tog('fuRow',false)"> No</label>
+          <label class="ri"><input type="radio" name="followup" value="Yes" onchange="tog('fuRow',true)"> Yes</label>
+        </div>
+      </div>
+      <div class="f" id="fuRow" style="display:none;margin-top:10px;"><label>Reason for follow-up</label><textarea id="fuReason" placeholder="What leadership needs to know..."></textarea></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-p" id="coachBtn" onclick="submitCoach()">&#128190; Save to Google Sheets</button>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <div class="confirm section" id="confirm-view">
+    <div class="confirm-icon">&#10003;</div>
+    <div class="confirm-title">Coach notes saved!</div>
+    <div class="confirm-sub">Everything's been written to Google Sheets.<br>All done for this session.</div>
+  </div>
+
+</div>
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMfTPZhoE0KMSEj6LgewPXFBL2y5coHSNFk1VCh2jCGkGSvOY03krjNqLRuadXgTR0Dg/exec';
+
+function tog(id, show) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = show ? 'block' : 'none';
+}
+function gv(id) { const e=document.getElementById(id); return e?e.value.trim():''; }
+function gr(name) { const e=document.querySelector('input[name="'+name+'"]:checked'); return e?e.value:''; }
+function showToast(msg, type) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+type; t.style.display='block';
+  if(type==='ok') setTimeout(()=>t.style.display='none', 4000);
+}
+
+async function submitCoach() {
+  if(!gv('agentName')){ showToast('Please enter the agent name.','err'); return; }
+  const btn=document.getElementById('coachBtn');
+  btn.disabled=true; btn.textContent='Saving...';
+
+  const payload = {
+    action: 'coach_submit',
+    agentName: gv('agentName'), weekOf: gv('weekOf'),
+    zNotes: gv('zNotes'), status: gr('status'),
+    keyObs: gv('keyObs'), followup: gr('followup'),
+    followupReason: gv('fuReason')
+  };
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify(payload)
+    });
+    document.getElementById('form-view').style.display='none';
+    document.getElementById('confirm-view').className='confirm section on';
+    window.scrollTo(0,0);
+  } catch(e) {
+    btn.disabled=false; btn.textContent='💾 Save to Google Sheets';
+    showToast('Something went wrong. Try again.','err');
+  }
+}
+</script>
+</body>
+</html>
