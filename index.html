@@ -36,7 +36,7 @@ body { background: var(--bg3); font-family: -apple-system, BlinkMacSystemFont, '
 @media(max-width:520px){ .g3{ grid-template-columns:repeat(2,1fr); } }
 .f { display: flex; flex-direction: column; gap: 4px; }
 .f label { font-size: 12px; color: var(--text2); }
-input[type=text],input[type=number],textarea,select { width:100%; padding:8px 10px; border:0.5px solid var(--border2); border-radius:var(--radius-sm); font-size:14px; font-family:inherit; color:var(--text); background:var(--bg); outline:none; transition:border-color .15s; }
+input[type=text],input[type=number],textarea { width:100%; padding:8px 10px; border:0.5px solid var(--border2); border-radius:var(--radius-sm); font-size:14px; font-family:inherit; color:var(--text); background:var(--bg); outline:none; transition:border-color .15s; }
 input[type=text]:focus,input[type=number]:focus,textarea:focus { border-color:var(--agent); }
 textarea { resize:vertical; min-height:70px; }
 input[type=range] { width:100%; accent-color:var(--agent); }
@@ -70,10 +70,17 @@ input[type=range] { width:100%; accent-color:var(--agent); }
 .confirm-sub { font-size:14px; color:var(--text2); line-height:1.7; }
 #p1,#p2,#p3 { display:none; }
 #p1.on,#p2.on,#p3.on { display:block; }
+.setup-banner { background:#fffbe6; border:0.5px solid #e6c800; border-radius:var(--radius-sm); padding:11px 15px; font-size:13px; color:#5a4a00; margin-bottom:1.25rem; display:none; }
 </style>
 </head>
 <body>
 <div class="page">
+
+  <!-- IMPORTANT: Replace the placeholder below with your Apps Script Web App URL -->
+  <!-- See setup instructions at the bottom of this file -->
+  <div class="setup-banner" id="setupBanner">
+    ⚠️ <strong>Setup needed:</strong> Open this file and replace <code>https://script.google.com/macros/s/AKfycbxMfTPZhoE0KMSEj6LgewPXFBL2y5coHSNFk1VCh2jCGkGSvOY03krjNqLRuadXgTR0Dg/exec</code> with your Google Apps Script Web App URL.
+  </div>
 
   <div class="top-bar">
     <div class="logo">Tom Gonzalez Group <span>/ Weekly Coaching Sheet</span></div>
@@ -272,34 +279,47 @@ input[type=range] { width:100%; accent-color:var(--agent); }
 
 </div>
 <script>
-const SHEET_ID = '1YsnNwlK2PAUf48dE5bY5Qff9z-Fs12oUsShe-LlkHSk';
+// =============================================
+// PASTE YOUR APPS SCRIPT WEB APP URL BELOW
+// =============================================
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMfTPZhoE0KMSEj6LgewPXFBL2y5coHSNFk1VCh2jCGkGSvOY03krjNqLRuadXgTR0Dg/exec';
+// =============================================
+
 let agentData = {};
 
+window.addEventListener('DOMContentLoaded', () => {
+  // URL configured
+  phase(1);
+});
+
 function tog(id, show) {
-  document.getElementById(id).style.display = show ? (id.includes('Val') ? 'inline-block' : 'block') : 'none';
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = show ? (el.tagName === 'INPUT' && el.type === 'text' ? 'inline-block' : 'block') : 'none';
 }
 function gv(id) { const e = document.getElementById(id); return e ? e.value.trim() : ''; }
 function gr(name) { const e = document.querySelector('input[name="'+name+'"]:checked'); return e ? e.value : ''; }
 function showToast(id, msg, type) {
   const t = document.getElementById(id);
   t.textContent = msg; t.className = 'toast ' + type; t.style.display = 'block';
-  if (type === 'ok') setTimeout(() => t.style.display = 'none', 4000);
+  if (type === 'ok') setTimeout(() => t.style.display = 'none', 5000);
 }
 function phase(n) {
   ['p1','p2','p3'].forEach((p,i) => document.getElementById(p).className = (i+1===n ? 'on' : ''));
-  ['tab1','tab2'].forEach((t,i) => {
-    const el = document.getElementById(t);
-    if (n === 1) el.className = i===0 ? 'pill active' : 'pill';
-    else if (n === 2) el.className = i===0 ? 'pill done' : 'pill';
-    else if (n === 3) el.className = i===0 ? 'pill done' : 'pill active';
-  });
+  const t1 = document.getElementById('tab1');
+  const t2 = document.getElementById('tab2');
+  if (n === 1) { t1.className='pill active'; t2.className='pill'; }
+  else if (n === 2) { t1.className='pill done'; t2.className='pill'; }
+  else { t1.className='pill done'; t2.className='pill active'; }
   window.scrollTo(0,0);
 }
 
 function getChecks() {
   const map = {lsSphere:'Sphere',lsOpen:'Open Houses',lsOnline:'Online',lsPast:'Past Clients',lsSocial:'Social',lsFarming:'Farming'};
   const src = Object.entries(map).filter(([id]) => document.getElementById(id).checked).map(([,l]) => l);
-  if (document.getElementById('lsOtherChk').checked) src.push('Other: ' + gv('lsOtherVal'));
+  if (document.getElementById('lsOtherChk').checked) {
+    const v = gv('lsOtherVal'); src.push(v ? 'Other: '+v : 'Other');
+  }
   return src.join(', ');
 }
 function getSkill() {
@@ -330,76 +350,42 @@ function submitAgent() {
 function goBack() { phase(1); }
 
 async function submitCoach() {
+  // URL configured
   const btn = document.getElementById('coachBtn');
   btn.disabled = true; btn.textContent = 'Saving...';
 
-  const row = [
-    new Date().toLocaleDateString(),
-    agentData.agentName, agentData.weekOf, agentData.coachName,
-    agentData.conversations, agentData.apptSet, agentData.apptMet,
-    agentData.agreements, agentData.contracts, agentData.closings,
-    agentData.leadSources,
-    agentData.zCalls, agentData.zConvos, agentData.zApptSet, agentData.zApptMet,
-    agentData.zPreApproval, agentData.zAgreements,
-    agentData.activeBuyers, agentData.activeListings, agentData.pending, agentData.hotOpps,
-    agentData.lastCommit, agentData.completed, agentData.whyNot,
-    agentData.commit1, agentData.commit2, agentData.commit3,
-    agentData.goalClosings, agentData.goalGCI, agentData.goal90,
-    agentData.aligned, agentData.adjPlan, agentData.skill,
-    agentData.obstacle, agentData.solution,
-    document.getElementById('energy').value, document.getElementById('conf').value,
-    gv('bigWin'), gv('bigChallenge'), gv('zNotes'),
-    gr('status'), gv('keyObs'), gr('followup'), gv('fuReason')
-  ];
-
-  const headers = [
-    'Timestamp','Agent Name','Week Of','Coach Name',
-    'Conversations','Appts Set','Appts Met','Agreements Signed','Contracts Written','Closings','Lead Sources',
-    'Zillow Calls','Zillow Convos','Zillow Appts Set','Zillow Appts Met','Zillow Pre-Approvals','Zillow Agreements',
-    'Active Buyers','Active Listings','Pending','Hot Opps (30-60d)',
-    'Last Week Commitment','Commitment Completed','Why Not',
-    'This Week #1','This Week #2','This Week #3',
-    'Monthly Closings Goal','GCI Goal','90-Day Target',
-    'Activity Aligned','Adjustment Plan','Skill Focus','Biggest Obstacle','Solution Discussed',
-    'Energy Level','Confidence Level','Biggest Win','Biggest Challenge','Zillow Coach Notes',
-    'Overall Status','Key Observations','Leadership Follow-Up','Follow-Up Reason'
-  ];
+  const payload = {
+    ...agentData,
+    energy: document.getElementById('energy').value,
+    confidence: document.getElementById('conf').value,
+    bigWin: gv('bigWin'),
+    bigChallenge: gv('bigChallenge'),
+    zNotes: gv('zNotes'),
+    status: gr('status'),
+    keyObs: gv('keyObs'),
+    followup: gr('followup'),
+    followupReason: gv('fuReason')
+  };
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        mcp_servers: [{ type: 'url', url: 'https://drivemcp.googleapis.com/mcp/v1', name: 'gdrive' }],
-        messages: [{
-          role: 'user',
-          content: `You have access to Google Sheets via the Google Drive MCP. Append data to spreadsheet ID "${SHEET_ID}".
-
-First check if row 1 is empty. If so, write this header row to A1: ${JSON.stringify(headers)}
-
-Then append this data as the next available row: ${JSON.stringify(row)}
-
-Reply with only "SUCCESS" or "ERROR: reason".`
-        }]
-      })
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
     });
     const data = await resp.json();
-    const txt = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
-    if (txt.includes('SUCCESS')) {
+    if (data.result === 'success') {
       btn.textContent = '✓ Saved!';
-      showToast('t3', 'Coaching sheet saved to Google Sheets.', 'ok');
+      showToast('t3', 'Coaching sheet saved to Google Sheets successfully!', 'ok');
     } else {
-      throw new Error(txt || 'Unknown error');
+      throw new Error(data.message || 'Unknown error');
     }
   } catch(e) {
-    btn.disabled = false; btn.textContent = '💾 Save to Google Sheets';
-    showToast('t3', 'Error: ' + e.message, 'err');
+    btn.disabled = false;
+    btn.textContent = '💾 Save to Google Sheets';
+    showToast('t3', 'Error saving: ' + e.message, 'err');
   }
 }
-
-phase(1);
 </script>
 </body>
 </html>
