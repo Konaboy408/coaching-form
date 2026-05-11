@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Agent Coaching Sheet</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff; --bg2: #f7f7f5; --bg3: #f0efe9;
+  --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+  --text: #1a1a1a; --text2: #5a5a5a; --text3: #999;
+  --blue-bg: #e6f1fb; --blue-text: #0c447c; --blue-border: #185fa5;
+  --green-bg: #eaf3de; --green-text: #27500a; --green-border: #3b6d11;
+  --yellow-bg: #faeeda; --yellow-text: #633806; --yellow-border: #854f0b;
+  --red-bg: #fcebeb; --red-text: #791f1f; --red-border: #a32d2d;
+  --radius: 10px; --radius-sm: 6px;
+  --agent: #185fa5; --coach: #3b6d11;
+}
+body { background: var(--bg3); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; color: var(--text); line-height: 1.5; min-height: 100vh; }
+.page { max-width: 700px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+.top-bar { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.logo { font-size: 15px; font-weight: 600; color: var(--text); }
+.logo span { color: var(--text2); font-weight: 400; }
+.phase-pills { display: flex; border: 0.5px solid var(--border); border-radius: 999px; overflow: hidden; font-size: 13px; }
+.pill { padding: 5px 16px; color: var(--text2); background: var(--bg2); }
+.pill.active { background: var(--text); color: #fff; font-weight: 500; }
+.pill.done { background: var(--green-bg); color: var(--green-text); }
+.section { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+.sec-title { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 1rem; }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.da { background: var(--agent); } .dc { background: var(--coach); }
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.g2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+.g1 { display: grid; grid-template-columns: 1fr; gap: 8px; }
+@media(max-width:520px){ .g3{ grid-template-columns:repeat(2,1fr); } }
+.f { display: flex; flex-direction: column; gap: 4px; }
+.f label { font-size: 12px; color: var(--text2); }
+input[type=text],input[type=number],textarea { width:100%; padding:8px 10px; border:0.5px solid var(--border2); border-radius:var(--radius-sm); font-size:14px; font-family:inherit; color:var(--text); background:var(--bg); outline:none; transition:border-color .15s; }
+input[type=text]:focus,input[type=number]:focus,textarea:focus { border-color:var(--agent); }
+textarea { resize:vertical; min-height:70px; }
+input[type=range] { width:100%; accent-color:var(--agent); }
+.div { height:0.5px; background:var(--border); margin:1rem 0; }
+.checks { display:flex; flex-wrap:wrap; gap:8px; }
+.ci,.ri { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text); cursor:pointer; }
+.ci input,.ri input { width:14px; height:14px; cursor:pointer; accent-color:var(--agent); }
+.yn { display:flex; gap:16px; }
+.status-wrap { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1rem; }
+.sp { display:flex; align-items:center; gap:6px; border:0.5px solid var(--border2); border-radius:999px; padding:7px 16px; font-size:13px; cursor:pointer; color:var(--text2); }
+.sp:has(input:checked).sg { background:var(--green-bg); border-color:var(--green-border); color:var(--green-text); font-weight:500; }
+.sp:has(input:checked).sy { background:var(--yellow-bg); border-color:var(--yellow-border); color:var(--yellow-text); font-weight:500; }
+.sp:has(input:checked).sr { background:var(--red-bg); border-color:var(--red-border); color:var(--red-text); font-weight:500; }
+.sp input { display:none; }
+.banner { border-radius:var(--radius-sm); padding:11px 15px; margin-bottom:1rem; font-size:13px; display:flex; align-items:flex-start; gap:8px; line-height:1.5; }
+.ba { background:var(--blue-bg); color:var(--blue-text); border:0.5px solid var(--blue-border); }
+.bc { background:var(--green-bg); color:var(--green-text); border:0.5px solid var(--green-border); }
+.btn-row { display:flex; justify-content:flex-end; gap:10px; margin-top:1.5rem; }
+.btn-p { background:var(--text); color:#fff; border:none; border-radius:var(--radius-sm); padding:10px 22px; font-size:14px; font-weight:500; cursor:pointer; }
+.btn-p:hover { opacity:.85; } .btn-p:disabled { opacity:.45; cursor:not-allowed; }
+.btn-s { background:transparent; color:var(--text2); border:0.5px solid var(--border2); border-radius:var(--radius-sm); padding:10px 18px; font-size:14px; cursor:pointer; }
+.btn-s:hover { background:var(--bg2); }
+.toast { border-radius:var(--radius-sm); padding:11px 15px; font-size:13px; margin-top:1rem; display:none; }
+.toast.ok { background:var(--green-bg); color:var(--green-text); border:0.5px solid var(--green-border); }
+.toast.err { background:var(--red-bg); color:var(--red-text); border:0.5px solid var(--red-border); }
+.cr { display:flex; align-items:center; gap:8px; }
+.cn { font-size:13px; color:var(--text3); min-width:18px; }
+.confirm { text-align:center; padding:3rem 1rem; }
+.confirm-icon { width:64px; height:64px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; font-size:28px; }
+.confirm-icon.green { background:var(--green-bg); color:var(--green-text); }
+.confirm-icon.blue { background:var(--blue-bg); color:var(--blue-text); }
+.confirm-title { font-size:20px; font-weight:600; margin-bottom:.5rem; }
+.confirm-sub { font-size:14px; color:var(--text2); line-height:1.7; }
+.agent-summary { background:var(--bg2); border:0.5px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:1rem; font-size:13px; }
+.agent-summary h3 { font-size:12px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
+.summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.summary-item { display:flex; flex-direction:column; gap:1px; }
+.summary-item .s-label { font-size:11px; color:var(--text3); }
+.summary-item .s-val { font-size:14px; font-weight:500; color:var(--text); }
+#p1,#p2,#p3,#p4 { display:none; }
+#p1.on,#p2.on,#p3.on,#p4.on { display:block; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top-bar">
+    <div class="logo">Tom Gonzalez Group <span>/ Weekly Coaching Sheet</span></div>
+    <div class="phase-pills">
+      <div class="pill" id="tab1">Agent</div>
+      <div class="pill" id="tab2">Coach</div>
+    </div>
+  </div>
+
+  <!-- PHASE 1: AGENT FORM -->
+  <div id="p1">
+    <div class="banner ba">
+      &#128100;&nbsp;<div><strong>Agent — </strong>Fill out your section and hit submit. Your coach will be notified to complete the rest.</div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot da"></span>Session info</div>
+      <div class="g3">
+        <div class="f"><label>Agent name</label><input type="text" id="agentName" placeholder="Full name"></div>
+        <div class="f"><label>Week of</label><input type="text" id="weekOf" placeholder="e.g. May 11, 2026"></div>
+        <div class="f"><label>Coach name</label><input type="text" id="coachName" placeholder="Full name"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot da"></span>Activity scorecard <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px;text-transform:none;">(last 7 days)</span></div>
+      <div class="g3">
+        <div class="f"><label>Conversations</label><input type="number" id="convos" min="0" placeholder="0"></div>
+        <div class="f"><label>Appointments set</label><input type="number" id="apptSet" min="0" placeholder="0"></div>
+        <div class="f"><label>Appointments met</label><input type="number" id="apptMet" min="0" placeholder="0"></div>
+        <div class="f"><label>Agreements signed</label><input type="number" id="agreements" min="0" placeholder="0"></div>
+        <div class="f"><label>Contracts written</label><input type="number" id="contracts" min="0" placeholder="0"></div>
+        <div class="f"><label>Closings</label><input type="number" id="closings" min="0" placeholder="0"></div>
+      </div>
+      <div class="div"></div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Lead sources worked</div>
+      <div class="checks">
+        <label class="ci"><input type="checkbox" id="lsSphere"> Sphere</label>
+        <label class="ci"><input type="checkbox" id="lsOpen"> Open houses</label>
+        <label class="ci"><input type="checkbox" id="lsOnline"> Online</label>
+        <label class="ci"><input type="checkbox" id="lsPast"> Past clients</label>
+        <label class="ci"><input type="checkbox" id="lsSocial"> Social</label>
+        <label class="ci"><input type="checkbox" id="lsFarming"> Farming</label>
+        <label class="ci"><input type="checkbox" id="lsOtherChk" onchange="tog('lsOtherVal',this.checked)"> Other</label>
+        <input type="text" id="lsOtherVal" placeholder="Specify..." style="display:none;width:110px;">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot da"></span>Zillow preferred performance</div>
+      <div class="g3">
+        <div class="f"><label>Calls taken</label><input type="number" id="zCalls" min="0" placeholder="0"></div>
+        <div class="f"><label>Conversations</label><input type="number" id="zConvos" min="0" placeholder="0"></div>
+        <div class="f"><label>Appointments set</label><input type="number" id="zApptSet" min="0" placeholder="0"></div>
+        <div class="f"><label>Appointments met</label><input type="number" id="zApptMet" min="0" placeholder="0"></div>
+        <div class="f"><label>Pre-approvals secured</label><input type="number" id="zPreApproval" min="0" placeholder="0"></div>
+        <div class="f"><label>Agreements signed</label><input type="number" id="zAgreements" min="0" placeholder="0"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot da"></span>Pipeline snapshot</div>
+      <div class="g3" style="margin-bottom:10px;">
+        <div class="f"><label>Active buyers</label><input type="number" id="buyers" min="0" placeholder="0"></div>
+        <div class="f"><label>Active listings</label><input type="number" id="listings" min="0" placeholder="0"></div>
+        <div class="f"><label>Pending</label><input type="number" id="pending" min="0" placeholder="0"></div>
+      </div>
+      <div class="f"><label>Hot opportunities (30–60 days)</label><input type="number" id="hotOpps" min="0" placeholder="0"></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot da"></span>Last week commitments</div>
+      <div class="f"><label>What did you commit to?</label><textarea id="lastCommit" placeholder="Describe last week's commitments..."></textarea></div>
+      <div class="div"></div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="font-size:13px;color:var(--text2);">Completed?</span>
+        <div class="yn">
+          <label class="ri"><input type="radio" name="completed" value="Yes" onchange="tog('whyRow',false)"> Yes</label>
+          <label class="ri"><input type="radio" name="completed" value="No" onchange="tog('whyRow',true)"> No</label>
+        </div>
+      </div>
+      <div class="f" id="whyRow" style="display:none;margin-top:10px;"><label>If no — why?</label><textarea id="whyNot" placeholder="Explain any barriers..."></textarea></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot da"></span>This week's focus <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px;text-transform:none;">(set together)</span></div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Top 3 income-producing commitments</div>
+      <div class="g1">
+        <div class="cr"><span class="cn">1.</span><input type="text" id="c1" placeholder="Commitment #1" style="flex:1;"></div>
+        <div class="cr"><span class="cn">2.</span><input type="text" id="c2" placeholder="Commitment #2" style="flex:1;"></div>
+        <div class="cr"><span class="cn">3.</span><input type="text" id="c3" placeholder="Commitment #3" style="flex:1;"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot da"></span>Goals confirmation <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px;text-transform:none;">very important</span></div>
+      <div class="g3" style="margin-bottom:10px;">
+        <div class="f"><label>Monthly closings goal</label><input type="number" id="goalClosings" min="0" placeholder="0"></div>
+        <div class="f"><label>GCI goal</label><input type="text" id="goalGCI" placeholder="e.g. $50,000"></div>
+        <div class="f"><label>90-day production target</label><input type="text" id="goal90" placeholder="e.g. 3 closings"></div>
+      </div>
+      <div class="div"></div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="font-size:13px;color:var(--text2);">Activity aligned with goals?</span>
+        <div class="yn">
+          <label class="ri"><input type="radio" name="aligned" value="Yes" onchange="tog('adjRow',false)"> Yes</label>
+          <label class="ri"><input type="radio" name="aligned" value="No" onchange="tog('adjRow',true)"> No</label>
+        </div>
+      </div>
+      <div class="f" id="adjRow" style="display:none;margin-top:10px;"><label>Adjustment plan</label><textarea id="adjPlan" placeholder="Describe the adjustment plan..."></textarea></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot da"></span>Coaching &amp; skill development</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Main skill being worked on</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;">
+        <label class="ri"><input type="radio" name="skill" value="Lead Conversion"> Lead conversion</label>
+        <label class="ri"><input type="radio" name="skill" value="Scripts / Objections"> Scripts / objections</label>
+        <label class="ri"><input type="radio" name="skill" value="Pricing"> Pricing</label>
+        <label class="ri"><input type="radio" name="skill" value="Database Follow-Up"> Database follow-up</label>
+        <label class="ri"><input type="radio" name="skill" value="Time Blocking"> Time blocking</label>
+        <label class="ri"><input type="radio" name="skill" value="Marketing"> Marketing</label>
+        <label class="ri"><input type="radio" name="skill" value="Other" onchange="tog('skillOtherVal',true)"> Other</label>
+        <input type="text" id="skillOtherVal" placeholder="Specify skill..." style="display:none;margin-left:20px;width:200px;">
+      </div>
+      <div class="g2">
+        <div class="f"><label>Biggest production obstacle</label><textarea id="obstacle" placeholder="Describe the main obstacle..."></textarea></div>
+        <div class="f"><label>Solution / strategy discussed</label><textarea id="solution" placeholder="What was the plan?"></textarea></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-p" id="agentBtn" onclick="submitAgent()">Submit &#8594;</button>
+    </div>
+    <div class="toast" id="t1"></div>
+  </div>
+
+  <!-- PHASE 2: AGENT CONFIRMATION -->
+  <div id="p2">
+    <div class="section confirm">
+      <div class="confirm-icon green">&#10003;</div>
+      <div class="confirm-title">You're all done!</div>
+      <div class="confirm-sub">Your section has been submitted.<br>Your coach has been notified via email and will complete the rest.<br><br>You can close this tab.</div>
+    </div>
+  </div>
+
+  <!-- PHASE 3: COACH LOADING -->
+  <div id="p3">
+    <div class="section confirm">
+      <div class="confirm-icon blue" style="font-size:22px;">&#8987;</div>
+      <div class="confirm-title">Loading agent data...</div>
+      <div class="confirm-sub">Pulling up the submission. Just a sec.</div>
+    </div>
+  </div>
+
+  <!-- PHASE 4: COACH FORM -->
+  <div id="p4">
+    <div class="banner bc">
+      &#128737;&nbsp;<div><strong>Coach section — </strong>Agent data is loaded below. Complete your notes and save.</div>
+    </div>
+
+    <!-- Agent summary card -->
+    <div class="agent-summary" id="agentSummary"></div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot dc"></span>Mindset &amp; momentum</div>
+      <div class="g2" style="margin-bottom:1rem;">
+        <div class="f"><label>Energy level (1–10): <strong id="eVal">5</strong></label><input type="range" min="1" max="10" value="5" step="1" id="energy" oninput="document.getElementById('eVal').textContent=this.value"></div>
+        <div class="f"><label>Confidence level (1–10): <strong id="cVal">5</strong></label><input type="range" min="1" max="10" value="5" step="1" id="conf" oninput="document.getElementById('cVal').textContent=this.value"></div>
+      </div>
+      <div class="g2">
+        <div class="f"><label>Biggest win</label><textarea id="bigWin" placeholder="What went well this week?"></textarea></div>
+        <div class="f"><label>Biggest challenge</label><textarea id="bigChallenge" placeholder="What was tough?"></textarea></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot dc"></span>Zillow coach notes</div>
+      <div class="f"><label>Observations on Zillow performance</label><textarea id="zNotes" placeholder="Notes on Zillow calls, conversion, follow-up..."></textarea></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot dc"></span>Coach notes <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px;text-transform:none;">required</span></div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Overall status</div>
+      <div class="status-wrap">
+        <label class="sp sg"><input type="radio" name="status" value="Green - On Track"> &#9679; Green — on track</label>
+        <label class="sp sy"><input type="radio" name="status" value="Yellow - Needs Attention"> &#9679; Yellow — needs attention</label>
+        <label class="sp sr"><input type="radio" name="status" value="Red - At Risk"> &#9679; Red — at risk</label>
+      </div>
+      <div class="f" style="margin-bottom:1rem;"><label>Key observations</label><textarea id="keyObs" placeholder="Coach's key observations..."></textarea></div>
+      <div class="div"></div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="font-size:13px;color:var(--text2);">Leadership follow-up needed?</span>
+        <div class="yn">
+          <label class="ri"><input type="radio" name="followup" value="No" onchange="tog('fuRow',false)"> No</label>
+          <label class="ri"><input type="radio" name="followup" value="Yes" onchange="tog('fuRow',true)"> Yes</label>
+        </div>
+      </div>
+      <div class="f" id="fuRow" style="display:none;margin-top:10px;"><label>Reason for follow-up</label><textarea id="fuReason" placeholder="Describe what leadership needs to know..."></textarea></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-p" id="coachBtn" onclick="submitCoach()">&#128190; Save to Google Sheets</button>
+    </div>
+    <div class="toast" id="t4"></div>
+  </div>
+
+</div>
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMfTPZhoE0KMSEj6LgewPXFBL2y5coHSNFk1VCh2jCGkGSvOY03krjNqLRuadXgTR0Dg/exec';
+
+let currentRowId = null;
+
+function tog(id, show) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = show ? (el.tagName==='INPUT' && el.type==='text' ? 'inline-block' : 'block') : 'none';
+}
+function gv(id) { const e=document.getElementById(id); return e?e.value.trim():''; }
+function gr(name) { const e=document.querySelector('input[name="'+name+'"]:checked'); return e?e.value:''; }
+function showToast(id,msg,type) {
+  const t=document.getElementById(id);
+  t.textContent=msg; t.className='toast '+type; t.style.display='block';
+  if(type==='ok') setTimeout(()=>t.style.display='none',5000);
+}
+function phase(n) {
+  ['p1','p2','p3','p4'].forEach((p,i)=>document.getElementById(p).className=(i+1===n?'on':''));
+  const t1=document.getElementById('tab1'), t2=document.getElementById('tab2');
+  if(n<=2){ t1.className=n===2?'pill done':'pill active'; t2.className='pill'; }
+  else { t1.className='pill done'; t2.className='pill active'; }
+  window.scrollTo(0,0);
+}
+
+function getChecks() {
+  const map={lsSphere:'Sphere',lsOpen:'Open Houses',lsOnline:'Online',lsPast:'Past Clients',lsSocial:'Social',lsFarming:'Farming'};
+  const src=Object.entries(map).filter(([id])=>document.getElementById(id).checked).map(([,l])=>l);
+  if(document.getElementById('lsOtherChk').checked){ const v=gv('lsOtherVal'); src.push(v?'Other: '+v:'Other'); }
+  return src.join(', ');
+}
+function getSkill() { const v=gr('skill'); return v==='Other'?'Other: '+gv('skillOtherVal'):v; }
+
+async function submitAgent() {
+  if(!gv('agentName')){ showToast('t1','Please enter agent name.','err'); return; }
+  const btn=document.getElementById('agentBtn');
+  btn.disabled=true; btn.textContent='Submitting...';
+
+  const payload = {
+    action: 'agent_submit',
+    formBaseUrl: window.location.origin + window.location.pathname,
+    agentName: gv('agentName'), weekOf: gv('weekOf'), coachName: gv('coachName'),
+    conversations: gv('convos'), apptSet: gv('apptSet'), apptMet: gv('apptMet'),
+    agreements: gv('agreements'), contracts: gv('contracts'), closings: gv('closings'),
+    leadSources: getChecks(),
+    zCalls: gv('zCalls'), zConvos: gv('zConvos'), zApptSet: gv('zApptSet'),
+    zApptMet: gv('zApptMet'), zPreApproval: gv('zPreApproval'), zAgreements: gv('zAgreements'),
+    activeBuyers: gv('buyers'), activeListings: gv('listings'), pending: gv('pending'), hotOpps: gv('hotOpps'),
+    lastCommit: gv('lastCommit'), completed: gr('completed'), whyNot: gv('whyNot'),
+    commit1: gv('c1'), commit2: gv('c2'), commit3: gv('c3'),
+    goalClosings: gv('goalClosings'), goalGCI: gv('goalGCI'), goal90: gv('goal90'),
+    aligned: gr('aligned'), adjPlan: gv('adjPlan'),
+    skill: getSkill(), obstacle: gv('obstacle'), solution: gv('solution')
+  };
+
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload)
+    });
+    const data = await resp.json();
+    if(data.result==='success') {
+      phase(2);
+    } else {
+      throw new Error(data.message||'Unknown error');
+    }
+  } catch(e) {
+    btn.disabled=false; btn.textContent='Submit →';
+    showToast('t1','Error submitting: '+e.message,'err');
+  }
+}
+
+async function submitCoach() {
+  const btn=document.getElementById('coachBtn');
+  btn.disabled=true; btn.textContent='Saving...';
+
+  const payload = {
+    action: 'coach_submit',
+    rowId: currentRowId,
+    energy: document.getElementById('energy').value,
+    confidence: document.getElementById('conf').value,
+    bigWin: gv('bigWin'), bigChallenge: gv('bigChallenge'), zNotes: gv('zNotes'),
+    status: gr('status'), keyObs: gv('keyObs'),
+    followup: gr('followup'), followupReason: gv('fuReason')
+  };
+
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload)
+    });
+    const data = await resp.json();
+    if(data.result==='success') {
+      btn.textContent='✓ Saved!';
+      showToast('t4','Coaching notes saved to Google Sheets!','ok');
+    } else {
+      throw new Error(data.message||'Unknown error');
+    }
+  } catch(e) {
+    btn.disabled=false; btn.textContent='💾 Save to Google Sheets';
+    showToast('t4','Error: '+e.message,'err');
+  }
+}
+
+function buildSummary(d) {
+  document.getElementById('agentSummary').innerHTML = `
+    <h3>&#128100; ${d['Agent Name']} — Week of ${d['Week Of']}</h3>
+    <div class="summary-grid">
+      <div class="summary-item"><span class="s-label">Conversations</span><span class="s-val">${d['Conversations']||'—'}</span></div>
+      <div class="summary-item"><span class="s-label">Appts Set</span><span class="s-val">${d['Appts Set']||'—'}</span></div>
+      <div class="summary-item"><span class="s-label">Appts Met</span><span class="s-val">${d['Appts Met']||'—'}</span></div>
+      <div class="summary-item"><span class="s-label">Agreements</span><span class="s-val">${d['Agreements Signed']||'—'}</span></div>
+      <div class="summary-item"><span class="s-label">Contracts</span><span class="s-val">${d['Contracts Written']||'—'}</span></div>
+      <div class="summary-item"><span class="s-label">Closings</span><span class="s-val">${d['Closings']||'—'}</span></div>
+      <div class="summary-item"><span class="s-label">Active Buyers</span><span class="s-val">${d['Active Buyers']||'—'}</span></div>
+      <div class="summary-item"><span class="s-label">Listings</span><span class="s-val">${d['Active Listings']||'—'}</span></div>
+      <div class="summary-item"><span class="s-label">Pending</span><span class="s-val">${d['Pending']||'—'}</span></div>
+    </div>`;
+}
+
+// On load — check if this is a coach link with ?rowId=
+window.addEventListener('DOMContentLoaded', async () => {
+  const params = new URLSearchParams(window.location.search);
+  const rowId = params.get('rowId');
+
+  if(rowId) {
+    currentRowId = rowId;
+    phase(3); // show loading
+    try {
+      const resp = await fetch(APPS_SCRIPT_URL, {
+        method:'POST', headers:{'Content-Type':'text/plain'},
+        body: JSON.stringify({ action:'load_row', rowId })
+      });
+      const result = await resp.json();
+      if(result.result==='success') {
+        buildSummary(result.data);
+        phase(4);
+      } else {
+        throw new Error(result.message);
+      }
+    } catch(e) {
+      alert('Could not load agent data: ' + e.message);
+      phase(1);
+    }
+  } else {
+    phase(1);
+  }
+});
+</script>
+</body>
+</html>
