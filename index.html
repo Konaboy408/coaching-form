@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Coaching Sheet — Agent</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff; --bg2: #f7f7f5; --bg3: #f0efe9;
+  --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+  --text: #1a1a1a; --text2: #5a5a5a; --text3: #999;
+  --blue-bg: #e6f1fb; --blue-text: #0c447c; --blue-border: #185fa5;
+  --green-bg: #eaf3de; --green-text: #27500a; --green-border: #3b6d11;
+  --red-bg: #fcebeb; --red-text: #791f1f; --red-border: #a32d2d;
+  --radius: 10px; --radius-sm: 6px; --agent: #185fa5;
+}
+body { background: var(--bg3); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; color: var(--text); line-height: 1.5; min-height: 100vh; }
+.page { max-width: 700px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+.top-bar { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.logo { font-size: 15px; font-weight: 600; } .logo span { color: var(--text2); font-weight: 400; }
+.badge { background: var(--blue-bg); color: var(--blue-text); border: 0.5px solid var(--blue-border); border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 500; }
+.section { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+.sec-title { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 1rem; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--agent); flex-shrink: 0; }
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.g2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+.g1 { display: grid; grid-template-columns: 1fr; gap: 8px; }
+@media(max-width:520px){ .g3{ grid-template-columns:repeat(2,1fr); } }
+.f { display: flex; flex-direction: column; gap: 4px; }
+.f label { font-size: 12px; color: var(--text2); }
+input[type=text],input[type=number],textarea { width:100%; padding:8px 10px; border:0.5px solid var(--border2); border-radius:var(--radius-sm); font-size:14px; font-family:inherit; color:var(--text); background:var(--bg); outline:none; transition:border-color .15s; }
+input:focus,textarea:focus { border-color:var(--agent); }
+textarea { resize:vertical; min-height:70px; }
+.div { height:0.5px; background:var(--border); margin:1rem 0; }
+.checks { display:flex; flex-wrap:wrap; gap:8px; }
+.ci,.ri { display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; }
+.ci input,.ri input { width:14px; height:14px; cursor:pointer; accent-color:var(--agent); }
+.yn { display:flex; gap:16px; }
+.btn-row { display:flex; justify-content:flex-end; margin-top:1.5rem; }
+.btn-p { background:var(--text); color:#fff; border:none; border-radius:var(--radius-sm); padding:11px 28px; font-size:14px; font-weight:500; cursor:pointer; }
+.btn-p:hover { opacity:.85; } .btn-p:disabled { opacity:.45; cursor:not-allowed; }
+.toast { border-radius:var(--radius-sm); padding:11px 15px; font-size:13px; margin-top:1rem; display:none; }
+.toast.ok { background:var(--green-bg); color:var(--green-text); border:0.5px solid var(--green-border); }
+.toast.err { background:var(--red-bg); color:var(--red-text); border:0.5px solid var(--red-border); }
+.cr { display:flex; align-items:center; gap:8px; }
+.cn { font-size:13px; color:var(--text3); min-width:18px; }
+.confirm { text-align:center; padding:3.5rem 1rem; }
+.confirm-icon { width:64px; height:64px; background:var(--green-bg); color:var(--green-text); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; font-size:28px; }
+.confirm-title { font-size:22px; font-weight:600; margin-bottom:.6rem; }
+.confirm-sub { font-size:14px; color:var(--text2); line-height:1.8; }
+#form-view, #confirm-view { display:none; }
+#form-view.on, #confirm-view.on { display:block; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top-bar">
+    <div class="logo">Tom Gonzalez Group <span>/ Weekly Coaching Sheet</span></div>
+    <div class="badge">Agent Section</div>
+  </div>
+
+  <!-- FORM -->
+  <div id="form-view">
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Session info</div>
+      <div class="g3">
+        <div class="f"><label>Agent name</label><input type="text" id="agentName" placeholder="Full name"></div>
+        <div class="f"><label>Week of</label><input type="text" id="weekOf" placeholder="e.g. May 11, 2026"></div>
+        <div class="f"><label>Coach name</label><input type="text" id="coachName" placeholder="Full name"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Activity scorecard <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px;text-transform:none;">(last 7 days)</span></div>
+      <div class="g3">
+        <div class="f"><label>Conversations</label><input type="number" id="convos" min="0" placeholder="0"></div>
+        <div class="f"><label>Appointments set</label><input type="number" id="apptSet" min="0" placeholder="0"></div>
+        <div class="f"><label>Appointments met</label><input type="number" id="apptMet" min="0" placeholder="0"></div>
+        <div class="f"><label>Agreements signed</label><input type="number" id="agreements" min="0" placeholder="0"></div>
+        <div class="f"><label>Contracts written</label><input type="number" id="contracts" min="0" placeholder="0"></div>
+        <div class="f"><label>Closings</label><input type="number" id="closings" min="0" placeholder="0"></div>
+      </div>
+      <div class="div"></div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Lead sources worked</div>
+      <div class="checks">
+        <label class="ci"><input type="checkbox" id="lsSphere"> Sphere</label>
+        <label class="ci"><input type="checkbox" id="lsOpen"> Open houses</label>
+        <label class="ci"><input type="checkbox" id="lsOnline"> Online</label>
+        <label class="ci"><input type="checkbox" id="lsPast"> Past clients</label>
+        <label class="ci"><input type="checkbox" id="lsSocial"> Social</label>
+        <label class="ci"><input type="checkbox" id="lsFarming"> Farming</label>
+        <label class="ci"><input type="checkbox" id="lsOtherChk" onchange="tog('lsOtherVal',this.checked)"> Other</label>
+        <input type="text" id="lsOtherVal" placeholder="Specify..." style="display:none;width:110px;">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Zillow preferred performance</div>
+      <div class="g3">
+        <div class="f"><label>Calls taken</label><input type="number" id="zCalls" min="0" placeholder="0"></div>
+        <div class="f"><label>Conversations</label><input type="number" id="zConvos" min="0" placeholder="0"></div>
+        <div class="f"><label>Appointments set</label><input type="number" id="zApptSet" min="0" placeholder="0"></div>
+        <div class="f"><label>Appointments met</label><input type="number" id="zApptMet" min="0" placeholder="0"></div>
+        <div class="f"><label>Pre-approvals secured</label><input type="number" id="zPreApproval" min="0" placeholder="0"></div>
+        <div class="f"><label>Agreements signed</label><input type="number" id="zAgreements" min="0" placeholder="0"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Pipeline snapshot</div>
+      <div class="g3" style="margin-bottom:10px;">
+        <div class="f"><label>Active buyers</label><input type="number" id="buyers" min="0" placeholder="0"></div>
+        <div class="f"><label>Active listings</label><input type="number" id="listings" min="0" placeholder="0"></div>
+        <div class="f"><label>Pending</label><input type="number" id="pending" min="0" placeholder="0"></div>
+      </div>
+      <div class="f"><label>Hot opportunities (30–60 days)</label><input type="number" id="hotOpps" min="0" placeholder="0"></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Last week's commitments</div>
+      <div class="f"><label>What did you commit to?</label><textarea id="lastCommit" placeholder="Describe last week's commitments..."></textarea></div>
+      <div class="div"></div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="font-size:13px;color:var(--text2);">Completed?</span>
+        <div class="yn">
+          <label class="ri"><input type="radio" name="completed" value="Yes" onchange="tog('whyRow',false)"> Yes</label>
+          <label class="ri"><input type="radio" name="completed" value="No" onchange="tog('whyRow',true)"> No</label>
+        </div>
+      </div>
+      <div class="f" id="whyRow" style="display:none;margin-top:10px;"><label>If no — why?</label><textarea id="whyNot" placeholder="Explain any barriers..."></textarea></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>This week's focus <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px;text-transform:none;">top 3 income-producing commitments</span></div>
+      <div class="g1">
+        <div class="cr"><span class="cn">1.</span><input type="text" id="c1" placeholder="Commitment #1" style="flex:1;"></div>
+        <div class="cr"><span class="cn">2.</span><input type="text" id="c2" placeholder="Commitment #2" style="flex:1;"></div>
+        <div class="cr"><span class="cn">3.</span><input type="text" id="c3" placeholder="Commitment #3" style="flex:1;"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Goals confirmation</div>
+      <div class="g3" style="margin-bottom:10px;">
+        <div class="f"><label>Monthly closings goal</label><input type="number" id="goalClosings" min="0" placeholder="0"></div>
+        <div class="f"><label>GCI goal</label><input type="text" id="goalGCI" placeholder="e.g. $50,000"></div>
+        <div class="f"><label>90-day production target</label><input type="text" id="goal90" placeholder="e.g. 3 closings"></div>
+      </div>
+      <div class="div"></div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="font-size:13px;color:var(--text2);">Activity aligned with goals?</span>
+        <div class="yn">
+          <label class="ri"><input type="radio" name="aligned" value="Yes" onchange="tog('adjRow',false)"> Yes</label>
+          <label class="ri"><input type="radio" name="aligned" value="No" onchange="tog('adjRow',true)"> No</label>
+        </div>
+      </div>
+      <div class="f" id="adjRow" style="display:none;margin-top:10px;"><label>Adjustment plan</label><textarea id="adjPlan" placeholder="Describe the adjustment plan..."></textarea></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Coaching &amp; skill development</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Main skill being worked on</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;">
+        <label class="ri"><input type="radio" name="skill" value="Lead Conversion"> Lead conversion</label>
+        <label class="ri"><input type="radio" name="skill" value="Scripts / Objections"> Scripts / objections</label>
+        <label class="ri"><input type="radio" name="skill" value="Pricing"> Pricing</label>
+        <label class="ri"><input type="radio" name="skill" value="Database Follow-Up"> Database follow-up</label>
+        <label class="ri"><input type="radio" name="skill" value="Time Blocking"> Time blocking</label>
+        <label class="ri"><input type="radio" name="skill" value="Marketing"> Marketing</label>
+        <label class="ri"><input type="radio" name="skill" value="Other" onchange="tog('skillOtherVal',true)"> Other</label>
+        <input type="text" id="skillOtherVal" placeholder="Specify..." style="display:none;margin-left:20px;width:200px;">
+      </div>
+      <div class="g2">
+        <div class="f"><label>Biggest production obstacle</label><textarea id="obstacle" placeholder="Describe the main obstacle..."></textarea></div>
+        <div class="f"><label>Solution / strategy discussed</label><textarea id="solution" placeholder="What was the plan?"></textarea></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Mindset &amp; momentum</div>
+      <div class="g2" style="margin-bottom:1rem;">
+        <div class="f"><label>Energy level (1–10): <strong id="eVal">5</strong></label><input type="range" min="1" max="10" value="5" step="1" id="energy" oninput="document.getElementById('eVal').textContent=this.value" style="accent-color:var(--agent);"></div>
+        <div class="f"><label>Confidence level (1–10): <strong id="cVal">5</strong></label><input type="range" min="1" max="10" value="5" step="1" id="conf" oninput="document.getElementById('cVal').textContent=this.value" style="accent-color:var(--agent);"></div>
+      </div>
+      <div class="g2">
+        <div class="f"><label>Biggest win</label><textarea id="bigWin" placeholder="What went well this week?"></textarea></div>
+        <div class="f"><label>Biggest challenge</label><textarea id="bigChallenge" placeholder="What was tough?"></textarea></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-p" id="submitBtn" onclick="submitAgent()">Submit &rarr;</button>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <!-- CONFIRMATION -->
+  <div id="confirm-view">
+    <div class="section confirm">
+      <div class="confirm-icon">&#10003;</div>
+      <div class="confirm-title">You're all done!</div>
+      <div class="confirm-sub">Your section has been submitted successfully.<br>Your coach will take it from here.<br><br>You can close this tab.</div>
+    </div>
+  </div>
+
+</div>
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMfTPZhoE0KMSEj6LgewPXFBL2y5coHSNFk1VCh2jCGkGSvOY03krjNqLRuadXgTR0Dg/exec';
+
+function tog(id, show) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = show ? (el.tagName==='INPUT' ? 'inline-block' : 'block') : 'none';
+}
+function gv(id) { const e=document.getElementById(id); return e?e.value.trim():''; }
+function gr(name) { const e=document.querySelector('input[name="'+name+'"]:checked'); return e?e.value:''; }
+function showToast(msg, type) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+type; t.style.display='block';
+}
+function getChecks() {
+  const map={lsSphere:'Sphere',lsOpen:'Open Houses',lsOnline:'Online',lsPast:'Past Clients',lsSocial:'Social',lsFarming:'Farming'};
+  const src=Object.entries(map).filter(([id])=>document.getElementById(id).checked).map(([,l])=>l);
+  if(document.getElementById('lsOtherChk').checked){ const v=gv('lsOtherVal'); src.push(v?'Other: '+v:'Other'); }
+  return src.join(', ');
+}
+function getSkill() { const v=gr('skill'); return v==='Other'?'Other: '+gv('skillOtherVal'):v; }
+
+async function submitAgent() {
+  if(!gv('agentName')){ showToast('Please enter your name.','err'); return; }
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true; btn.textContent='Submitting...';
+
+  const payload = {
+    action: 'agent_submit',
+    agentName: gv('agentName'), weekOf: gv('weekOf'), coachName: gv('coachName'),
+    conversations: gv('convos'), apptSet: gv('apptSet'), apptMet: gv('apptMet'),
+    agreements: gv('agreements'), contracts: gv('contracts'), closings: gv('closings'),
+    leadSources: getChecks(),
+    zCalls: gv('zCalls'), zConvos: gv('zConvos'), zApptSet: gv('zApptSet'),
+    zApptMet: gv('zApptMet'), zPreApproval: gv('zPreApproval'), zAgreements: gv('zAgreements'),
+    activeBuyers: gv('buyers'), activeListings: gv('listings'), pending: gv('pending'), hotOpps: gv('hotOpps'),
+    lastCommit: gv('lastCommit'), completed: gr('completed'), whyNot: gv('whyNot'),
+    commit1: gv('c1'), commit2: gv('c2'), commit3: gv('c3'),
+    goalClosings: gv('goalClosings'), goalGCI: gv('goalGCI'), goal90: gv('goal90'),
+    aligned: gr('aligned'), adjPlan: gv('adjPlan'),
+    skill: getSkill(), obstacle: gv('obstacle'), solution: gv('solution'),
+    energy: document.getElementById('energy').value,
+    confidence: document.getElementById('conf').value,
+    bigWin: gv('bigWin'), bigChallenge: gv('bigChallenge')
+  };
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify(payload)
+    });
+    document.getElementById('form-view').className='';
+    document.getElementById('confirm-view').className='on';
+    window.scrollTo(0,0);
+  } catch(e) {
+    btn.disabled=false; btn.textContent='Submit →';
+    showToast('Something went wrong. Try again.','err');
+  }
+}
+
+document.getElementById('form-view').className='on';
+</script>
+</body>
+</html>
