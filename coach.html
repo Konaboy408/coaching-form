@@ -69,6 +69,18 @@ textarea { resize:vertical; min-height:70px; }
     </div>
 
     <div class="section">
+      <div class="sec-title"><span class="dot"></span>Mindset &amp; momentum</div>
+      <div class="g2" style="margin-bottom:1rem;">
+        <div class="f"><label>Energy level (1–10): <strong id="eVal">5</strong></label><input type="range" min="1" max="10" value="5" step="1" id="energy" oninput="document.getElementById('eVal').textContent=this.value" style="accent-color:var(--coach);"></div>
+        <div class="f"><label>Confidence level (1–10): <strong id="cVal">5</strong></label><input type="range" min="1" max="10" value="5" step="1" id="conf" oninput="document.getElementById('cVal').textContent=this.value" style="accent-color:var(--coach);"></div>
+      </div>
+      <div class="g2">
+        <div class="f"><label>Biggest win</label><textarea id="bigWin" placeholder="What went well this week?"></textarea></div>
+        <div class="f"><label>Biggest challenge</label><textarea id="bigChallenge" placeholder="What was tough?"></textarea></div>
+      </div>
+    </div>
+
+    <div class="section">
       <div class="sec-title"><span class="dot"></span>Zillow coach notes</div>
       <div class="f"><label>Observations on Zillow performance</label><textarea id="zNotes" placeholder="Notes on calls, conversion, follow-up..."></textarea></div>
     </div>
@@ -109,6 +121,15 @@ textarea { resize:vertical; min-height:70px; }
 <script>
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMfTPZhoE0KMSEj6LgewPXFBL2y5coHSNFk1VCh2jCGkGSvOY03krjNqLRuadXgTR0Dg/exec';
 
+// Auto-fill agent name and week from URL params (set by email link)
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const agent = params.get('agent');
+  const week = params.get('week');
+  if (agent) document.getElementById('agentName').value = agent;
+  if (week) document.getElementById('weekOf').value = week;
+});
+
 function tog(id, show) {
   const el = document.getElementById(id);
   if (el) el.style.display = show ? 'block' : 'none';
@@ -129,6 +150,9 @@ async function submitCoach() {
   const payload = {
     action: 'coach_submit',
     agentName: gv('agentName'), weekOf: gv('weekOf'),
+    energy: document.getElementById('energy').value,
+    confidence: document.getElementById('conf').value,
+    bigWin: gv('bigWin'), bigChallenge: gv('bigChallenge'),
     zNotes: gv('zNotes'), status: gr('status'),
     keyObs: gv('keyObs'), followup: gr('followup'),
     followupReason: gv('fuReason')
