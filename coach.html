@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Weekly Coaching Sheet — Coach Notes</title>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -45,11 +49,32 @@ textarea { resize:vertical; min-height:70px; }
 .toast { border-radius:var(--radius-sm); padding:11px 15px; font-size:13px; margin-top:1rem; display:none; }
 .toast.ok { background:var(--green-bg); color:var(--green-text); border:0.5px solid var(--green-border); }
 .toast.err { background:var(--red-bg); color:var(--red-text); border:0.5px solid var(--red-border); }
-.confirm { text-align:center; padding:3.5rem 1rem; display:none; }
+
+/* ── Confirmation ── */
+.confirm { text-align:center; padding:3.5rem 1rem 2.5rem; display:none; }
 .confirm.on { display:block; }
 .confirm-icon { width:64px; height:64px; background:var(--green-bg); color:var(--green-text); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; font-size:28px; }
 .confirm-title { font-size:22px; font-weight:600; margin-bottom:.6rem; }
-.confirm-sub { font-size:14px; color:var(--text2); line-height:1.8; }
+.confirm-sub { font-size:14px; color:var(--text2); line-height:1.8; margin-bottom:1.75rem; }
+
+/* ── PDF button ── */
+.btn-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--green-bg);
+  color: var(--green-text);
+  border: 0.5px solid var(--green-border);
+  border-radius: var(--radius-sm);
+  padding: 11px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity .15s;
+  margin-bottom: 1.25rem;
+}
+.btn-pdf:hover { opacity: .8; }
 </style>
 </head>
 <body>
@@ -59,6 +84,9 @@ textarea { resize:vertical; min-height:70px; }
     <div class="badge">Coach Section</div>
   </div>
 
+  <!-- ══════════════════════════════════════
+       FORM — identical to original
+  ══════════════════════════════════════ -->
   <div id="form-view">
     <div class="section">
       <div class="sec-title"><span class="dot"></span>Session info</div>
@@ -111,23 +139,44 @@ textarea { resize:vertical; min-height:70px; }
     <div class="toast" id="toast"></div>
   </div>
 
+  <!-- ══════════════════════════════════════
+       CONFIRMATION
+  ══════════════════════════════════════ -->
   <div class="confirm section" id="confirm-view">
     <div class="confirm-icon">&#10003;</div>
     <div class="confirm-title">Coach notes saved!</div>
-    <div class="confirm-sub">Everything's been written to Google Sheets.<br>All done for this session.</div>
+    <div class="confirm-sub">
+      Everything's been written to Google Sheets.<br>
+      All done for this session.
+    </div>
+
+    <button class="btn-pdf" onclick="downloadPDF()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Download PDF copy
+    </button>
+
+    <div style="font-size:13px;color:var(--text3);">You can close this tab when done.</div>
   </div>
 
 </div>
+
 <script>
+/* ═══════════════════════════════════════════════════════
+   GOOGLE APPS SCRIPT CONNECTION — DO NOT MODIFY
+═══════════════════════════════════════════════════════ */
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMfTPZhoE0KMSEj6LgewPXFBL2y5coHSNFk1VCh2jCGkGSvOY03krjNqLRuadXgTR0Dg/exec';
 
 // Auto-fill agent name and week from URL params (set by email link)
 window.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const agent = params.get('agent');
-  const week = params.get('week');
+  const week  = params.get('week');
   if (agent) document.getElementById('agentName').value = agent;
-  if (week) document.getElementById('weekOf').value = week;
+  if (week)  document.getElementById('weekOf').value   = week;
 });
 
 function tog(id, show) {
@@ -142,6 +191,9 @@ function showToast(msg, type) {
   if(type==='ok') setTimeout(()=>t.style.display='none', 4000);
 }
 
+// Stash submitted data so PDF can use it after form clears
+let _submitted = {};
+
 async function submitCoach() {
   if(!gv('agentName')){ showToast('Please enter the agent name.','err'); return; }
   const btn=document.getElementById('coachBtn');
@@ -149,12 +201,16 @@ async function submitCoach() {
 
   const payload = {
     action: 'coach_submit',
-    agentName: gv('agentName'), weekOf: gv('weekOf'),
-    energy: document.getElementById('energy').value,
-    confidence: document.getElementById('conf').value,
-    bigWin: gv('bigWin'), bigChallenge: gv('bigChallenge'),
-    zNotes: gv('zNotes'), status: gr('status'),
-    keyObs: gv('keyObs'), followup: gr('followup'),
+    agentName:      gv('agentName'),
+    weekOf:         gv('weekOf'),
+    energy:         document.getElementById('energy').value,
+    confidence:     document.getElementById('conf').value,
+    bigWin:         gv('bigWin'),
+    bigChallenge:   gv('bigChallenge'),
+    zNotes:         gv('zNotes'),
+    status:         gr('status'),
+    keyObs:         gv('keyObs'),
+    followup:       gr('followup'),
     followupReason: gv('fuReason')
   };
 
@@ -164,13 +220,145 @@ async function submitCoach() {
       headers:{'Content-Type':'text/plain'},
       body: JSON.stringify(payload)
     });
-    document.getElementById('form-view').style.display='none';
-    document.getElementById('confirm-view').className='confirm section on';
+    _submitted = payload; // stash for PDF — does NOT affect submission
+    document.getElementById('form-view').style.display = 'none';
+    document.getElementById('confirm-view').className  = 'confirm section on';
     window.scrollTo(0,0);
   } catch(e) {
     btn.disabled=false; btn.textContent='💾 Save to Google Sheets';
     showToast('Something went wrong. Try again.','err');
   }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PDF GENERATION — client-side only, no network calls
+═══════════════════════════════════════════════════════ */
+function downloadPDF() {
+  const d = _submitted;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+
+  const navy  = [15, 30, 53];
+  const green = [59, 109, 17];
+  const white = [255, 255, 255];
+  const light = [234, 243, 222];
+  const muted = [90, 90, 90];
+  const body  = [26, 26, 26];
+
+  const L = 40, R = 572, W = R - L;
+  let y = 0;
+
+  // Header bar
+  doc.setFillColor(...navy);
+  doc.rect(0, 0, 612, 62, 'F');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(180, 210, 180);
+  doc.text('TOM GONZALEZ GROUP  /  WEEKLY COACHING SHEET', L, 22);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(18);
+  doc.setTextColor(...white);
+  doc.text('Coach Notes', L, 46);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(180, 210, 180);
+  const dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+  doc.text('Generated ' + dateStr, R, 46, { align: 'right' });
+
+  y = 76;
+
+  function sectionHeader(title) {
+    if (y > 710) { doc.addPage(); y = 40; }
+    doc.setFillColor(...light);
+    doc.rect(L - 6, y - 2, W + 12, 17, 'F');
+    doc.setFillColor(...green);
+    doc.circle(L + 2, y + 6.5, 3, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...muted);
+    doc.text(title.toUpperCase(), L + 10, y + 10);
+    y += 22;
+  }
+
+  function row(label, value) {
+    if (y > 730) { doc.addPage(); y = 40; }
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...muted);
+    doc.text(label, L, y);
+    doc.setTextColor(...body);
+    doc.setFont('helvetica', value ? 'normal' : 'italic');
+    const lines = doc.splitTextToSize(value || '—', W - 145);
+    doc.text(lines, L + 145, y);
+    y += Math.max(lines.length * 13, 14);
+  }
+
+  function gap() { y += 6; }
+
+  // ── Status badge ──
+  function statusBadge(value) {
+    if (y > 730) { doc.addPage(); y = 40; }
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...muted);
+    doc.text('Overall Status', L, y);
+
+    let bgColor, textColor, label;
+    if (!value)                              { bgColor=[240,239,233]; textColor=muted;        label='—'; }
+    else if (value.includes('Green'))        { bgColor=[234,243,222]; textColor=[39,80,10];   label='● Green — On Track'; }
+    else if (value.includes('Yellow'))       { bgColor=[250,238,218]; textColor=[99,56,6];    label='● Yellow — Needs Attention'; }
+    else                                     { bgColor=[252,235,235]; textColor=[121,31,31];  label='● Red — At Risk'; }
+
+    const bx = L + 145, bw = 160, bh = 16;
+    doc.setFillColor(...bgColor);
+    doc.roundedRect(bx, y - 10, bw, bh, 8, 8, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...textColor);
+    doc.text(label, bx + bw / 2, y + 1, { align: 'center' });
+    y += 16;
+  }
+
+  // ── Sections ──
+  sectionHeader('Session Info');
+  row('Agent Name', d.agentName);
+  row('Week Of',    d.weekOf);
+  gap();
+
+  sectionHeader('Mindset & Momentum');
+  row('Energy Level (1–10)',     d.energy);
+  row('Confidence Level (1–10)', d.confidence);
+  row('Biggest Win',             d.bigWin);
+  row('Biggest Challenge',       d.bigChallenge);
+  gap();
+
+  sectionHeader('Zillow Coach Notes');
+  row('Observations', d.zNotes);
+  gap();
+
+  sectionHeader('Coach Notes');
+  statusBadge(d.status);
+  gap();
+  row('Key Observations',       d.keyObs);
+  row('Leadership Follow-Up?',  d.followup);
+  row('Follow-Up Reason',       d.followupReason);
+
+  // Footer on every page
+  const total = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= total; i++) {
+    doc.setPage(i);
+    doc.setFillColor(...navy);
+    doc.rect(0, 762, 612, 30, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(180, 210, 180);
+    doc.text('Tom Gonzalez Group — Weekly Coaching Sheet — Coach Notes', L, 781);
+    doc.text('Page ' + i + ' of ' + total, R, 781, { align: 'right' });
+  }
+
+  const name = (d.agentName || 'Agent').replace(/\s+/g, '_');
+  const week = (d.weekOf || '').replace(/[^a-zA-Z0-9]/g, '_') || new Date().toISOString().slice(0,10);
+  doc.save('Coach_Notes_' + name + '_' + week + '.pdf');
 }
 </script>
 </body>
