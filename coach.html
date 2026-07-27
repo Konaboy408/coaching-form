@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Weekly Coaching Sheet — Coach Notes</title>
+<title>Weekly Coaching Sheet — Agent</title>
 
-<!-- jsPDF -->
+<!-- jsPDF + AutoTable -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,57 +15,56 @@
   --bg: #ffffff; --bg2: #f7f7f5; --bg3: #f0efe9;
   --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
   --text: #1a1a1a; --text2: #5a5a5a; --text3: #999;
+  --blue-bg: #e6f1fb; --blue-text: #0c447c; --blue-border: #185fa5;
   --green-bg: #eaf3de; --green-text: #27500a; --green-border: #3b6d11;
-  --yellow-bg: #faeeda; --yellow-text: #633806; --yellow-border: #854f0b;
   --red-bg: #fcebeb; --red-text: #791f1f; --red-border: #a32d2d;
-  --radius: 10px; --radius-sm: 6px; --coach: #3b6d11;
+  --radius: 10px; --radius-sm: 6px; --agent: #185fa5;
 }
 body { background: var(--bg3); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; color: var(--text); line-height: 1.5; min-height: 100vh; }
 .page { max-width: 700px; margin: 0 auto; padding: 2rem 1rem 4rem; }
 .top-bar { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
 .logo { font-size: 15px; font-weight: 600; } .logo span { color: var(--text2); font-weight: 400; }
-.badge { background: var(--green-bg); color: var(--green-text); border: 0.5px solid var(--green-border); border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 500; }
+.badge { background: var(--blue-bg); color: var(--blue-text); border: 0.5px solid var(--blue-border); border-radius: 999px; padding: 4px 12px; font-size: 12px; font-weight: 500; }
 .section { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
 .sec-title { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 1rem; }
-.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--coach); flex-shrink: 0; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--agent); flex-shrink: 0; }
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
 .g2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+.g1 { display: grid; grid-template-columns: 1fr; gap: 8px; }
+@media(max-width:520px){ .g3{ grid-template-columns:repeat(2,1fr); } }
 .f { display: flex; flex-direction: column; gap: 4px; }
 .f label { font-size: 12px; color: var(--text2); }
-input[type=text],textarea { width:100%; padding:8px 10px; border:0.5px solid var(--border2); border-radius:var(--radius-sm); font-size:14px; font-family:inherit; color:var(--text); background:var(--bg); outline:none; transition:border-color .15s; }
-input:focus,textarea:focus { border-color:var(--coach); }
+input[type=text],input[type=number],input[type=date],select,textarea { width:100%; padding:8px 10px; border:0.5px solid var(--border2); border-radius:var(--radius-sm); font-size:14px; font-family:inherit; color:var(--text); background:var(--bg); outline:none; transition:border-color .15s; }
+input:focus,select:focus,textarea:focus { border-color:var(--agent); }
 textarea { resize:vertical; min-height:70px; }
 .div { height:0.5px; background:var(--border); margin:1rem 0; }
-.ri { display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; }
-.ri input { width:14px; height:14px; cursor:pointer; accent-color:var(--coach); }
+.checks { display:flex; flex-wrap:wrap; gap:8px; }
+.ci,.ri { display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; }
+.ci input,.ri input { width:14px; height:14px; cursor:pointer; accent-color:var(--agent); }
 .yn { display:flex; gap:16px; }
-.status-wrap { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:1rem; }
-.sp { display:flex; align-items:center; gap:6px; border:0.5px solid var(--border2); border-radius:999px; padding:7px 16px; font-size:13px; cursor:pointer; color:var(--text2); }
-.sp:has(input:checked).sg { background:var(--green-bg); border-color:var(--green-border); color:var(--green-text); font-weight:500; }
-.sp:has(input:checked).sy { background:var(--yellow-bg); border-color:var(--yellow-border); color:var(--yellow-text); font-weight:500; }
-.sp:has(input:checked).sr { background:var(--red-bg); border-color:var(--red-border); color:var(--red-text); font-weight:500; }
-.sp input { display:none; }
 .btn-row { display:flex; justify-content:flex-end; margin-top:1.5rem; }
 .btn-p { background:var(--text); color:#fff; border:none; border-radius:var(--radius-sm); padding:11px 28px; font-size:14px; font-weight:500; cursor:pointer; }
 .btn-p:hover { opacity:.85; } .btn-p:disabled { opacity:.45; cursor:not-allowed; }
 .toast { border-radius:var(--radius-sm); padding:11px 15px; font-size:13px; margin-top:1rem; display:none; }
 .toast.ok { background:var(--green-bg); color:var(--green-text); border:0.5px solid var(--green-border); }
 .toast.err { background:var(--red-bg); color:var(--red-text); border:0.5px solid var(--red-border); }
+.cr { display:flex; align-items:center; gap:8px; }
+.cn { font-size:13px; color:var(--text3); min-width:18px; }
 
 /* ── Confirmation ── */
-.confirm { text-align:center; padding:3.5rem 1rem 2.5rem; display:none; }
-.confirm.on { display:block; }
+.confirm { text-align:center; padding:3.5rem 1rem 2.5rem; }
 .confirm-icon { width:64px; height:64px; background:var(--green-bg); color:var(--green-text); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; font-size:28px; }
 .confirm-title { font-size:22px; font-weight:600; margin-bottom:.6rem; }
 .confirm-sub { font-size:14px; color:var(--text2); line-height:1.8; margin-bottom:1.75rem; }
 
-/* ── PDF button ── */
+/* ── PDF download button ── */
 .btn-pdf {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--green-bg);
-  color: var(--green-text);
-  border: 0.5px solid var(--green-border);
+  background: var(--blue-bg);
+  color: var(--blue-text);
+  border: 0.5px solid var(--blue-border);
   border-radius: var(--radius-sm);
   padding: 11px 24px;
   font-size: 14px;
@@ -75,66 +75,147 @@ textarea { resize:vertical; min-height:70px; }
   margin-bottom: 1.25rem;
 }
 .btn-pdf:hover { opacity: .8; }
+
+#form-view, #confirm-view { display:none; }
+#form-view.on, #confirm-view.on { display:block; }
 </style>
 </head>
 <body>
 <div class="page">
   <div class="top-bar">
-    <div class="logo">Tom Gonzalez Group <span>/ Weekly Coaching Sheet</span></div>
-    <div class="badge">Coach Section</div>
+    <div class="logo">Tom Gonzalez Group &amp; Red Carpet <span>/ Weekly Coaching Sheet</span></div>
+    <div class="badge">Agent Section</div>
   </div>
 
   <!-- ══════════════════════════════════════
        FORM — identical to original
   ══════════════════════════════════════ -->
   <div id="form-view">
+
     <div class="section">
       <div class="sec-title"><span class="dot"></span>Session info</div>
-      <div class="g2">
+      <div class="g3">
         <div class="f"><label>Agent name</label><input type="text" id="agentName" placeholder="Full name"></div>
-        <div class="f"><label>Week of</label><input type="text" id="weekOf" placeholder="e.g. May 11, 2026"></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="sec-title"><span class="dot"></span>Mindset &amp; momentum</div>
-      <div class="g2" style="margin-bottom:1rem;">
-        <div class="f"><label>Energy level (1–10): <strong id="eVal">5</strong></label><input type="range" min="1" max="10" value="5" step="1" id="energy" oninput="document.getElementById('eVal').textContent=this.value" style="accent-color:var(--coach);"></div>
-        <div class="f"><label>Confidence level (1–10): <strong id="cVal">5</strong></label><input type="range" min="1" max="10" value="5" step="1" id="conf" oninput="document.getElementById('cVal').textContent=this.value" style="accent-color:var(--coach);"></div>
-      </div>
-      <div class="g2">
-        <div class="f"><label>Biggest win</label><textarea id="bigWin" placeholder="What went well this week?"></textarea></div>
-        <div class="f"><label>Biggest challenge</label><textarea id="bigChallenge" placeholder="What was tough?"></textarea></div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="sec-title"><span class="dot"></span>Zillow coach notes</div>
-      <div class="f"><label>Observations on Zillow performance</label><textarea id="zNotes" placeholder="Notes on calls, conversion, follow-up..."></textarea></div>
-    </div>
-
-    <div class="section">
-      <div class="sec-title"><span class="dot"></span>Coach notes <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px;text-transform:none;">required</span></div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Overall agent status</div>
-      <div class="status-wrap">
-        <label class="sp sg"><input type="radio" name="status" value="Green - On Track"> &#9679; Green — on track</label>
-        <label class="sp sy"><input type="radio" name="status" value="Yellow - Needs Attention"> &#9679; Yellow — needs attention</label>
-        <label class="sp sr"><input type="radio" name="status" value="Red - At Risk"> &#9679; Red — at risk</label>
-      </div>
-      <div class="f" style="margin-bottom:1rem;"><label>Key observations</label><textarea id="keyObs" placeholder="Notes for this session..."></textarea></div>
-      <div class="div"></div>
-      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-        <span style="font-size:13px;color:var(--text2);">Leadership follow-up needed?</span>
-        <div class="yn">
-          <label class="ri"><input type="radio" name="followup" value="No" onchange="tog('fuRow',false)"> No</label>
-          <label class="ri"><input type="radio" name="followup" value="Yes" onchange="tog('fuRow',true)"> Yes</label>
+        <div class="f"><label>Week of</label><input type="date" id="weekOf"></div>
+        <div class="f"><label>Coach</label>
+          <select id="coachName">
+            <option value="" disabled selected>Select coach...</option>
+            <option value="Ric">Ric</option>
+            <option value="Christina">Christina</option>
+            <option value="Eric">Eric</option>
+          </select>
         </div>
       </div>
-      <div class="f" id="fuRow" style="display:none;margin-top:10px;"><label>Reason for follow-up</label><textarea id="fuReason" placeholder="What leadership needs to know..."></textarea></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Activity scorecard <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px;text-transform:none;">(last 7 days)</span></div>
+      <div class="g3">
+        <div class="f"><label>Conversations</label><input type="number" id="convos" min="0" placeholder="0"></div>
+        <div class="f"><label>Appointments set</label><input type="number" id="apptSet" min="0" placeholder="0"></div>
+        <div class="f"><label>Appointments met</label><input type="number" id="apptMet" min="0" placeholder="0"></div>
+        <div class="f"><label>Agreements signed</label><input type="number" id="agreements" min="0" placeholder="0"></div>
+        <div class="f"><label>Contracts written</label><input type="number" id="contracts" min="0" placeholder="0"></div>
+        <div class="f"><label>Closings</label><input type="number" id="closings" min="0" placeholder="0"></div>
+      </div>
+      <div class="div"></div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Lead sources worked</div>
+      <div class="checks">
+        <label class="ci"><input type="checkbox" id="lsSphere"> Sphere</label>
+        <label class="ci"><input type="checkbox" id="lsOpen"> Open houses</label>
+        <label class="ci"><input type="checkbox" id="lsOnline"> Online</label>
+        <label class="ci"><input type="checkbox" id="lsPast"> Past clients</label>
+        <label class="ci"><input type="checkbox" id="lsSocial"> Social</label>
+        <label class="ci"><input type="checkbox" id="lsFarming"> Farming</label>
+        <label class="ci"><input type="checkbox" id="lsOtherChk" onchange="tog('lsOtherVal',this.checked)"> Other</label>
+        <input type="text" id="lsOtherVal" placeholder="Specify..." style="display:none;width:110px;">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Zillow preferred performance</div>
+      <div class="g3">
+        <div class="f"><label>Calls taken</label><input type="number" id="zCalls" min="0" placeholder="0"></div>
+        <div class="f"><label>Conversations</label><input type="number" id="zConvos" min="0" placeholder="0"></div>
+        <div class="f"><label>Appointments set</label><input type="number" id="zApptSet" min="0" placeholder="0"></div>
+        <div class="f"><label>Appointments met</label><input type="number" id="zApptMet" min="0" placeholder="0"></div>
+        <div class="f"><label>Pre-approvals secured</label><input type="number" id="zPreApproval" min="0" placeholder="0"></div>
+        <div class="f"><label>Agreements signed</label><input type="number" id="zAgreements" min="0" placeholder="0"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Pipeline snapshot</div>
+      <div class="g3" style="margin-bottom:10px;">
+        <div class="f"><label>Active buyers</label><input type="number" id="buyers" min="0" placeholder="0"></div>
+        <div class="f"><label>Active listings</label><input type="number" id="listings" min="0" placeholder="0"></div>
+        <div class="f"><label>Pending</label><input type="number" id="pending" min="0" placeholder="0"></div>
+      </div>
+      <div class="f"><label>Hot opportunities (30–60 days)</label><input type="number" id="hotOpps" min="0" placeholder="0"></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Last week's commitments</div>
+      <div class="f"><label>What did you commit to?</label><textarea id="lastCommit" placeholder="Describe last week's commitments..."></textarea></div>
+      <div class="div"></div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="font-size:13px;color:var(--text2);">Completed?</span>
+        <div class="yn">
+          <label class="ri"><input type="radio" name="completed" value="Yes" onchange="tog('whyRow',false)"> Yes</label>
+          <label class="ri"><input type="radio" name="completed" value="No" onchange="tog('whyRow',true)"> No</label>
+        </div>
+      </div>
+      <div class="f" id="whyRow" style="display:none;margin-top:10px;"><label>If no — why?</label><textarea id="whyNot" placeholder="Explain any barriers..."></textarea></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>This week's focus <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px;text-transform:none;">top 3 income-producing commitments</span></div>
+      <div class="g1">
+        <div class="cr"><span class="cn">1.</span><input type="text" id="c1" placeholder="Commitment #1" style="flex:1;"></div>
+        <div class="cr"><span class="cn">2.</span><input type="text" id="c2" placeholder="Commitment #2" style="flex:1;"></div>
+        <div class="cr"><span class="cn">3.</span><input type="text" id="c3" placeholder="Commitment #3" style="flex:1;"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Goals confirmation</div>
+      <div class="g3" style="margin-bottom:10px;">
+        <div class="f"><label>Monthly closings goal</label><input type="number" id="goalClosings" min="0" placeholder="0"></div>
+        <div class="f"><label>GCI goal</label><input type="text" id="goalGCI" placeholder="e.g. $50,000"></div>
+        <div class="f"><label>90-day production target</label><input type="text" id="goal90" placeholder="e.g. 3 closings"></div>
+      </div>
+      <div class="div"></div>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <span style="font-size:13px;color:var(--text2);">Activity aligned with goals?</span>
+        <div class="yn">
+          <label class="ri"><input type="radio" name="aligned" value="Yes" onchange="tog('adjRow',false)"> Yes</label>
+          <label class="ri"><input type="radio" name="aligned" value="No" onchange="tog('adjRow',true)"> No</label>
+        </div>
+      </div>
+      <div class="f" id="adjRow" style="display:none;margin-top:10px;"><label>Adjustment plan</label><textarea id="adjPlan" placeholder="Describe the adjustment plan..."></textarea></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-title"><span class="dot"></span>Coaching &amp; skill development</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Skills being worked on</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;">
+        <label class="ci"><input type="checkbox" id="skLead"> Lead conversion</label>
+        <label class="ci"><input type="checkbox" id="skScripts"> Scripts / objections</label>
+        <label class="ci"><input type="checkbox" id="skPricing"> Pricing</label>
+        <label class="ci"><input type="checkbox" id="skDatabase"> Database follow-up</label>
+        <label class="ci"><input type="checkbox" id="skTime"> Time blocking</label>
+        <label class="ci"><input type="checkbox" id="skMarketing"> Marketing</label>
+        <label class="ci"><input type="checkbox" id="skOtherChk" onchange="tog('skillOtherVal',this.checked)"> Other</label>
+        <input type="text" id="skillOtherVal" placeholder="Specify..." style="display:none;margin-left:20px;width:200px;">
+      </div>
+      <div class="g2">
+        <div class="f"><label>Biggest production obstacle</label><textarea id="obstacle" placeholder="Describe the main obstacle..."></textarea></div>
+        <div class="f"><label>Solution / strategy discussed</label><textarea id="solution" placeholder="What was the plan?"></textarea></div>
+      </div>
     </div>
 
     <div class="btn-row">
-      <button class="btn-p" id="coachBtn" onclick="submitCoach()">&#128190; Save to Google Sheets</button>
+      <button class="btn-p" id="submitBtn" onclick="submitAgent()">Submit &rarr;</button>
     </div>
     <div class="toast" id="toast"></div>
   </div>
@@ -142,24 +223,26 @@ textarea { resize:vertical; min-height:70px; }
   <!-- ══════════════════════════════════════
        CONFIRMATION
   ══════════════════════════════════════ -->
-  <div class="confirm section" id="confirm-view">
-    <div class="confirm-icon">&#10003;</div>
-    <div class="confirm-title">Coach notes saved!</div>
-    <div class="confirm-sub">
-      Everything's been written to Google Sheets.<br>
-      All done for this session.
+  <div id="confirm-view">
+    <div class="section confirm">
+      <div class="confirm-icon">&#10003;</div>
+      <div class="confirm-title">You're all done!</div>
+      <div class="confirm-sub">
+        Your section has been submitted successfully.<br>
+        Your coach will take it from here.
+      </div>
+
+      <button class="btn-pdf" onclick="downloadPDF()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download PDF copy
+      </button>
+
+      <div style="font-size:13px;color:var(--text3);">You can close this tab when done.</div>
     </div>
-
-    <button class="btn-pdf" onclick="downloadPDF()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-        <polyline points="7 10 12 15 17 10"/>
-        <line x1="12" y1="15" x2="12" y2="3"/>
-      </svg>
-      Download PDF copy
-    </button>
-
-    <div style="font-size:13px;color:var(--text3);">You can close this tab when done.</div>
   </div>
 
 </div>
@@ -167,51 +250,63 @@ textarea { resize:vertical; min-height:70px; }
 <script>
 /* ═══════════════════════════════════════════════════════
    GOOGLE APPS SCRIPT CONNECTION — DO NOT MODIFY
+   Sends agent data to Google Sheets via Apps Script.
+   coach.html reads from the same sheet.
 ═══════════════════════════════════════════════════════ */
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMfTPZhoE0KMSEj6LgewPXFBL2y5coHSNFk1VCh2jCGkGSvOY03krjNqLRuadXgTR0Dg/exec';
 
-// Auto-fill agent name and week from URL params (set by email link)
-window.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  const agent = params.get('agent');
-  const week  = params.get('week');
-  if (agent) document.getElementById('agentName').value = agent;
-  if (week)  document.getElementById('weekOf').value   = week;
-});
-
 function tog(id, show) {
   const el = document.getElementById(id);
-  if (el) el.style.display = show ? 'block' : 'none';
+  if (!el) return;
+  el.style.display = show ? (el.tagName==='INPUT' ? 'inline-block' : 'block') : 'none';
 }
 function gv(id) { const e=document.getElementById(id); return e?e.value.trim():''; }
+function fmtDate(iso) {
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-').map(Number);
+  if(!y||!m||!d) return iso;
+  return new Date(y, m-1, d).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+}
 function gr(name) { const e=document.querySelector('input[name="'+name+'"]:checked'); return e?e.value:''; }
 function showToast(msg, type) {
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='toast '+type; t.style.display='block';
-  if(type==='ok') setTimeout(()=>t.style.display='none', 4000);
+}
+function getChecks() {
+  const map={lsSphere:'Sphere',lsOpen:'Open Houses',lsOnline:'Online',lsPast:'Past Clients',lsSocial:'Social',lsFarming:'Farming'};
+  const src=Object.entries(map).filter(([id])=>document.getElementById(id).checked).map(([,l])=>l);
+  if(document.getElementById('lsOtherChk').checked){ const v=gv('lsOtherVal'); src.push(v?'Other: '+v:'Other'); }
+  return src.join(', ');
+}
+function getSkills() {
+  const map={skLead:'Lead Conversion',skScripts:'Scripts / Objections',skPricing:'Pricing',skDatabase:'Database Follow-Up',skTime:'Time Blocking',skMarketing:'Marketing'};
+  const src=Object.entries(map).filter(([id])=>document.getElementById(id).checked).map(([,l])=>l);
+  if(document.getElementById('skOtherChk').checked){ const v=gv('skillOtherVal'); src.push(v?'Other: '+v:'Other'); }
+  return src.join(', ');
 }
 
-// Stash submitted data so PDF can use it after form clears
+// Holds submitted data so PDF can read it after the form clears
 let _submitted = {};
 
-async function submitCoach() {
-  if(!gv('agentName')){ showToast('Please enter the agent name.','err'); return; }
-  const btn=document.getElementById('coachBtn');
-  btn.disabled=true; btn.textContent='Saving...';
+async function submitAgent() {
+  if(!gv('agentName')){ showToast('Please enter your name.','err'); return; }
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true; btn.textContent='Submitting...';
 
   const payload = {
-    action: 'coach_submit',
-    agentName:      gv('agentName'),
-    weekOf:         gv('weekOf'),
-    energy:         document.getElementById('energy').value,
-    confidence:     document.getElementById('conf').value,
-    bigWin:         gv('bigWin'),
-    bigChallenge:   gv('bigChallenge'),
-    zNotes:         gv('zNotes'),
-    status:         gr('status'),
-    keyObs:         gv('keyObs'),
-    followup:       gr('followup'),
-    followupReason: gv('fuReason')
+    action: 'agent_submit',
+    agentName: gv('agentName'), weekOf: fmtDate(gv('weekOf')), coachName: gv('coachName'),
+    conversations: gv('convos'), apptSet: gv('apptSet'), apptMet: gv('apptMet'),
+    agreements: gv('agreements'), contracts: gv('contracts'), closings: gv('closings'),
+    leadSources: getChecks(),
+    zCalls: gv('zCalls'), zConvos: gv('zConvos'), zApptSet: gv('zApptSet'),
+    zApptMet: gv('zApptMet'), zPreApproval: gv('zPreApproval'), zAgreements: gv('zAgreements'),
+    activeBuyers: gv('buyers'), activeListings: gv('listings'), pending: gv('pending'), hotOpps: gv('hotOpps'),
+    lastCommit: gv('lastCommit'), completed: gr('completed'), whyNot: gv('whyNot'),
+    commit1: gv('c1'), commit2: gv('c2'), commit3: gv('c3'),
+    goalClosings: gv('goalClosings'), goalGCI: gv('goalGCI'), goal90: gv('goal90'),
+    aligned: gr('aligned'), adjPlan: gv('adjPlan'),
+    skill: getSkills(), obstacle: gv('obstacle'), solution: gv('solution')
   };
 
   try {
@@ -221,14 +316,16 @@ async function submitCoach() {
       body: JSON.stringify(payload)
     });
     _submitted = payload; // stash for PDF — does NOT affect submission
-    document.getElementById('form-view').style.display = 'none';
-    document.getElementById('confirm-view').className  = 'confirm section on';
+    document.getElementById('form-view').className='';
+    document.getElementById('confirm-view').className='on';
     window.scrollTo(0,0);
   } catch(e) {
-    btn.disabled=false; btn.textContent='💾 Save to Google Sheets';
+    btn.disabled=false; btn.textContent='Submit →';
     showToast('Something went wrong. Try again.','err');
   }
 }
+
+document.getElementById('form-view').className='on';
 
 /* ═══════════════════════════════════════════════════════
    PDF GENERATION — client-side only, no network calls
@@ -239,29 +336,29 @@ function downloadPDF() {
   const doc = new jsPDF({ unit: 'pt', format: 'letter' });
 
   const navy  = [15, 30, 53];
-  const green = [59, 109, 17];
+  const blue  = [24, 95, 165];
   const white = [255, 255, 255];
-  const light = [234, 243, 222];
+  const light = [240, 239, 233];
   const muted = [90, 90, 90];
   const body  = [26, 26, 26];
 
   const L = 40, R = 572, W = R - L;
   let y = 0;
 
-  // Header bar
+  // Header
   doc.setFillColor(...navy);
   doc.rect(0, 0, 612, 62, 'F');
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
-  doc.setTextColor(180, 210, 180);
-  doc.text('TOM GONZALEZ GROUP  /  WEEKLY COACHING SHEET', L, 22);
+  doc.setTextColor(180, 200, 230);
+  doc.text('TOM GONZALEZ GROUP & RED CARPET  /  WEEKLY COACHING SHEET', L, 22);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
   doc.setTextColor(...white);
-  doc.text('Coach Notes', L, 46);
+  doc.text('Agent Section', L, 46);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
-  doc.setTextColor(180, 210, 180);
+  doc.setTextColor(180, 200, 230);
   const dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
   doc.text('Generated ' + dateStr, R, 46, { align: 'right' });
 
@@ -271,7 +368,7 @@ function downloadPDF() {
     if (y > 710) { doc.addPage(); y = 40; }
     doc.setFillColor(...light);
     doc.rect(L - 6, y - 2, W + 12, 17, 'F');
-    doc.setFillColor(...green);
+    doc.setFillColor(...blue);
     doc.circle(L + 2, y + 6.5, 3, 'F');
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
@@ -295,53 +392,62 @@ function downloadPDF() {
 
   function gap() { y += 6; }
 
-  // ── Status badge ──
-  function statusBadge(value) {
-    if (y > 730) { doc.addPage(); y = 40; }
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
-    doc.setTextColor(...muted);
-    doc.text('Overall Status', L, y);
-
-    let bgColor, textColor, label;
-    if (!value)                              { bgColor=[240,239,233]; textColor=muted;        label='—'; }
-    else if (value.includes('Green'))        { bgColor=[234,243,222]; textColor=[39,80,10];   label='● Green — On Track'; }
-    else if (value.includes('Yellow'))       { bgColor=[250,238,218]; textColor=[99,56,6];    label='● Yellow — Needs Attention'; }
-    else                                     { bgColor=[252,235,235]; textColor=[121,31,31];  label='● Red — At Risk'; }
-
-    const bx = L + 145, bw = 160, bh = 16;
-    doc.setFillColor(...bgColor);
-    doc.roundedRect(bx, y - 10, bw, bh, 8, 8, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8);
-    doc.setTextColor(...textColor);
-    doc.text(label, bx + bw / 2, y + 1, { align: 'center' });
-    y += 16;
-  }
-
-  // ── Sections ──
   sectionHeader('Session Info');
-  row('Agent Name', d.agentName);
-  row('Week Of',    d.weekOf);
+  row('Agent Name',  d.agentName);
+  row('Week Of',     d.weekOf);
+  row('Coach Name',  d.coachName);
   gap();
 
-  sectionHeader('Mindset & Momentum');
-  row('Energy Level (1–10)',     d.energy);
-  row('Confidence Level (1–10)', d.confidence);
-  row('Biggest Win',             d.bigWin);
-  row('Biggest Challenge',       d.bigChallenge);
+  sectionHeader('Activity Scorecard — Last 7 Days');
+  row('Conversations',     d.conversations);
+  row('Appointments Set',  d.apptSet);
+  row('Appointments Met',  d.apptMet);
+  row('Agreements Signed', d.agreements);
+  row('Contracts Written', d.contracts);
+  row('Closings',          d.closings);
+  row('Lead Sources',      d.leadSources);
   gap();
 
-  sectionHeader('Zillow Coach Notes');
-  row('Observations', d.zNotes);
+  sectionHeader('Zillow Preferred Performance');
+  row('Calls Taken',       d.zCalls);
+  row('Conversations',     d.zConvos);
+  row('Appointments Set',  d.zApptSet);
+  row('Appointments Met',  d.zApptMet);
+  row('Pre-Approvals',     d.zPreApproval);
+  row('Agreements Signed', d.zAgreements);
   gap();
 
-  sectionHeader('Coach Notes');
-  statusBadge(d.status);
+  sectionHeader('Pipeline Snapshot');
+  row('Active Buyers',         d.activeBuyers);
+  row('Active Listings',       d.activeListings);
+  row('Pending',               d.pending);
+  row('Hot Opps (30–60 days)', d.hotOpps);
   gap();
-  row('Key Observations',       d.keyObs);
-  row('Leadership Follow-Up?',  d.followup);
-  row('Follow-Up Reason',       d.followupReason);
+
+  sectionHeader("Last Week's Commitments");
+  row('Commitment', d.lastCommit);
+  row('Completed?',  d.completed);
+  row('If No — Why', d.whyNot);
+  gap();
+
+  sectionHeader("This Week's Focus — Top 3 Commitments");
+  row('1', d.commit1);
+  row('2', d.commit2);
+  row('3', d.commit3);
+  gap();
+
+  sectionHeader('Goals Confirmation');
+  row('Monthly Closings Goal',    d.goalClosings);
+  row('GCI Goal',                 d.goalGCI);
+  row('90-Day Production Target', d.goal90);
+  row('Activity Aligned?',        d.aligned);
+  row('Adjustment Plan',          d.adjPlan);
+  gap();
+
+  sectionHeader('Coaching & Skill Development');
+  row('Skills',    d.skill);
+  row('Obstacle',   d.obstacle);
+  row('Solution',   d.solution);
 
   // Footer on every page
   const total = doc.internal.getNumberOfPages();
@@ -351,14 +457,14 @@ function downloadPDF() {
     doc.rect(0, 762, 612, 30, 'F');
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
-    doc.setTextColor(180, 210, 180);
-    doc.text('Tom Gonzalez Group — Weekly Coaching Sheet — Coach Notes', L, 781);
+    doc.setTextColor(180, 200, 230);
+    doc.text('Tom Gonzalez Group & Red Carpet — Weekly Coaching Sheet — Agent Section', L, 781);
     doc.text('Page ' + i + ' of ' + total, R, 781, { align: 'right' });
   }
 
   const name = (d.agentName || 'Agent').replace(/\s+/g, '_');
   const week = (d.weekOf || '').replace(/[^a-zA-Z0-9]/g, '_') || new Date().toISOString().slice(0,10);
-  doc.save('Coach_Notes_' + name + '_' + week + '.pdf');
+  doc.save('Coaching_Sheet_' + name + '_' + week + '.pdf');
 }
 </script>
 </body>
