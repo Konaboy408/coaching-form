@@ -114,9 +114,7 @@ textarea { resize:vertical; min-height:70px; }
         <div class="f"><label>Conversations</label><input type="number" id="convos" min="0" placeholder="0"></div>
         <div class="f"><label>Appointments set</label><input type="number" id="apptSet" min="0" placeholder="0"></div>
         <div class="f"><label>Appointments met</label><input type="number" id="apptMet" min="0" placeholder="0"></div>
-        <div class="f"><label>Agreements signed</label><input type="number" id="agreements" min="0" placeholder="0"></div>
         <div class="f"><label>Contracts written</label><input type="number" id="contracts" min="0" placeholder="0"></div>
-        <div class="f"><label>Closings</label><input type="number" id="closings" min="0" placeholder="0"></div>
       </div>
       <div class="div"></div>
       <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Lead sources worked</div>
@@ -130,28 +128,26 @@ textarea { resize:vertical; min-height:70px; }
         <label class="ci"><input type="checkbox" id="lsOtherChk" onchange="tog('lsOtherVal',this.checked)"> Other</label>
         <input type="text" id="lsOtherVal" placeholder="Specify..." style="display:none;width:110px;">
       </div>
+      <div class="div"></div>
+      <div class="f"><label>Which 1–2 clients (buyer or seller) had the most objections / road blocks this week?</label><textarea id="objections" placeholder="e.g. getting a second date, writing up offers with, ghosting, listing appointment, etc."></textarea></div>
     </div>
 
     <div class="section">
       <div class="sec-title"><span class="dot"></span>Zillow preferred performance</div>
       <div class="g3">
-        <div class="f"><label>Calls taken</label><input type="number" id="zCalls" min="0" placeholder="0"></div>
-        <div class="f"><label>Conversations</label><input type="number" id="zConvos" min="0" placeholder="0"></div>
-        <div class="f"><label>Appointments set</label><input type="number" id="zApptSet" min="0" placeholder="0"></div>
+        <div class="f"><label>Leads taken</label><input type="number" id="zCalls" min="0" placeholder="0"></div>
         <div class="f"><label>Appointments met</label><input type="number" id="zApptMet" min="0" placeholder="0"></div>
         <div class="f"><label>Pre-approvals secured</label><input type="number" id="zPreApproval" min="0" placeholder="0"></div>
-        <div class="f"><label>Agreements signed</label><input type="number" id="zAgreements" min="0" placeholder="0"></div>
       </div>
     </div>
 
     <div class="section">
       <div class="sec-title"><span class="dot"></span>Pipeline snapshot</div>
-      <div class="g3" style="margin-bottom:10px;">
-        <div class="f"><label>Active buyers</label><input type="number" id="buyers" min="0" placeholder="0"></div>
+      <div class="g3">
+        <div class="f"><label>Active buyers (Pre-approved)</label><input type="number" id="buyers" min="0" placeholder="0"></div>
         <div class="f"><label>Active listings</label><input type="number" id="listings" min="0" placeholder="0"></div>
         <div class="f"><label>Pending</label><input type="number" id="pending" min="0" placeholder="0"></div>
       </div>
-      <div class="f"><label>Hot opportunities (30–60 days)</label><input type="number" id="hotOpps" min="0" placeholder="0"></div>
     </div>
 
     <div class="section">
@@ -178,21 +174,26 @@ textarea { resize:vertical; min-height:70px; }
     </div>
 
     <div class="section">
-      <div class="sec-title"><span class="dot"></span>Goals confirmation</div>
-      <div class="g3" style="margin-bottom:10px;">
-        <div class="f"><label>Monthly closings goal</label><input type="number" id="goalClosings" min="0" placeholder="0"></div>
-        <div class="f"><label>GCI goal</label><input type="text" id="goalGCI" placeholder="e.g. $50,000"></div>
-        <div class="f"><label>90-day production target</label><input type="text" id="goal90" placeholder="e.g. 3 closings"></div>
+      <div class="sec-title" style="cursor:pointer;justify-content:space-between;" onclick="toggleGoals()">
+        <span style="display:flex;align-items:center;gap:7px;"><span class="dot"></span>Goals confirmation <span style="font-size:10px;font-weight:400;color:var(--text3);margin-left:4px;text-transform:none;">(quarterly)</span></span>
+        <span id="goalsToggleIcon" style="font-size:11px;color:var(--text3);text-transform:none;letter-spacing:normal;">Show &#9662;</span>
       </div>
-      <div class="div"></div>
-      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-        <span style="font-size:13px;color:var(--text2);">Activity aligned with goals?</span>
-        <div class="yn">
-          <label class="ri"><input type="radio" name="aligned" value="Yes" onchange="tog('adjRow',false)"> Yes</label>
-          <label class="ri"><input type="radio" name="aligned" value="No" onchange="tog('adjRow',true)"> No</label>
+      <div id="goalsContent" style="display:none;">
+        <div class="g3" style="margin-bottom:10px;">
+          <div class="f"><label>Monthly closings goal</label><input type="number" id="goalClosings" min="0" placeholder="0"></div>
+          <div class="f"><label>NCI goal <span style="font-weight:400;color:var(--text3);">(Net Commission Income)</span></label><input type="text" id="goalGCI" placeholder="e.g. $50,000"></div>
+          <div class="f"><label>90-day production target</label><input type="text" id="goal90" placeholder="e.g. 3 closings"></div>
         </div>
+        <div class="div"></div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <span style="font-size:13px;color:var(--text2);">Activity aligned with goals?</span>
+          <div class="yn">
+            <label class="ri"><input type="radio" name="aligned" value="Yes" onchange="tog('adjRow',false)"> Yes</label>
+            <label class="ri"><input type="radio" name="aligned" value="No" onchange="tog('adjRow',true)"> No</label>
+          </div>
+        </div>
+        <div class="f" id="adjRow" style="display:none;margin-top:10px;"><label>Adjustment plan</label><textarea id="adjPlan" placeholder="Describe the adjustment plan..."></textarea></div>
       </div>
-      <div class="f" id="adjRow" style="display:none;margin-top:10px;"><label>Adjustment plan</label><textarea id="adjPlan" placeholder="Describe the adjustment plan..."></textarea></div>
     </div>
 
     <div class="section">
@@ -255,6 +256,13 @@ textarea { resize:vertical; min-height:70px; }
 ═══════════════════════════════════════════════════════ */
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxMfTPZhoE0KMSEj6LgewPXFBL2y5coHSNFk1VCh2jCGkGSvOY03krjNqLRuadXgTR0Dg/exec';
 
+function toggleGoals() {
+  const el = document.getElementById('goalsContent');
+  const icon = document.getElementById('goalsToggleIcon');
+  const show = el.style.display === 'none';
+  el.style.display = show ? 'block' : 'none';
+  icon.innerHTML = show ? 'Hide &#9652;' : 'Show &#9662;';
+}
 function tog(id, show) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -297,11 +305,10 @@ async function submitAgent() {
     action: 'agent_submit',
     agentName: gv('agentName'), weekOf: fmtDate(gv('weekOf')), coachName: gv('coachName'),
     conversations: gv('convos'), apptSet: gv('apptSet'), apptMet: gv('apptMet'),
-    agreements: gv('agreements'), contracts: gv('contracts'), closings: gv('closings'),
-    leadSources: getChecks(),
-    zCalls: gv('zCalls'), zConvos: gv('zConvos'), zApptSet: gv('zApptSet'),
-    zApptMet: gv('zApptMet'), zPreApproval: gv('zPreApproval'), zAgreements: gv('zAgreements'),
-    activeBuyers: gv('buyers'), activeListings: gv('listings'), pending: gv('pending'), hotOpps: gv('hotOpps'),
+    contracts: gv('contracts'),
+    leadSources: getChecks(), objections: gv('objections'),
+    zCalls: gv('zCalls'), zApptMet: gv('zApptMet'), zPreApproval: gv('zPreApproval'),
+    activeBuyers: gv('buyers'), activeListings: gv('listings'), pending: gv('pending'),
     lastCommit: gv('lastCommit'), completed: gr('completed'), whyNot: gv('whyNot'),
     commit1: gv('c1'), commit2: gv('c2'), commit3: gv('c3'),
     goalClosings: gv('goalClosings'), goalGCI: gv('goalGCI'), goal90: gv('goal90'),
@@ -402,26 +409,21 @@ function downloadPDF() {
   row('Conversations',     d.conversations);
   row('Appointments Set',  d.apptSet);
   row('Appointments Met',  d.apptMet);
-  row('Agreements Signed', d.agreements);
   row('Contracts Written', d.contracts);
-  row('Closings',          d.closings);
   row('Lead Sources',      d.leadSources);
+  row('Top Objections / Road Blocks', d.objections);
   gap();
 
   sectionHeader('Zillow Preferred Performance');
-  row('Calls Taken',       d.zCalls);
-  row('Conversations',     d.zConvos);
-  row('Appointments Set',  d.zApptSet);
+  row('Leads Taken',       d.zCalls);
   row('Appointments Met',  d.zApptMet);
   row('Pre-Approvals',     d.zPreApproval);
-  row('Agreements Signed', d.zAgreements);
   gap();
 
   sectionHeader('Pipeline Snapshot');
-  row('Active Buyers',         d.activeBuyers);
+  row('Active Buyers (Pre-Approved)', d.activeBuyers);
   row('Active Listings',       d.activeListings);
   row('Pending',               d.pending);
-  row('Hot Opps (30–60 days)', d.hotOpps);
   gap();
 
   sectionHeader("Last Week's Commitments");
@@ -438,7 +440,7 @@ function downloadPDF() {
 
   sectionHeader('Goals Confirmation');
   row('Monthly Closings Goal',    d.goalClosings);
-  row('GCI Goal',                 d.goalGCI);
+  row('NCI Goal',                 d.goalGCI);
   row('90-Day Production Target', d.goal90);
   row('Activity Aligned?',        d.aligned);
   row('Adjustment Plan',          d.adjPlan);
